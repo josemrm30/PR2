@@ -1,16 +1,25 @@
 import java.io.IOException;
-import java.util.ArrayList;
+
 
 public class Utils {
     static Configurator config;
-    static ArrayList<LectorDatos> data = new ArrayList<>();
+    private static LectorDatos data;
+
+    public Utils() {
+
+    }
 
     public static void loadFiles(String[] args) throws IOException {
         config = new Configurator(args[0]);
 
         for (int i = 0; i < config.getFiles().size(); i++) {
-            LectorDatos lector = new LectorDatos(config.getFiles().get(i));
-            data.add(lector);
+
+            data = new LectorDatos(config.getFiles().get(i));
         }
+
+    }
+
+    public static LectorDatos getData() {
+        return data;
     }
 }
