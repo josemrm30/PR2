@@ -9,6 +9,7 @@ public class Configurator {
     private final ArrayList<String> algorithms = new ArrayList<>();
     private final ArrayList<Long> seeds = new ArrayList<>();
     private int population;
+    private int greedyRandomSize;
     private int elite;
     private int kBest;
     private int kWorst;
@@ -39,6 +40,9 @@ public class Configurator {
                     break;
                 case "Population":
                     population = Integer.parseInt(splited[1]);
+                    break;
+                case "GreedyRandomSize":
+                    greedyRandomSize = Integer.parseInt(splited[1]);
                     break;
                 case "Elite":
                     elite = Integer.parseInt(splited[1]);
@@ -84,6 +88,10 @@ public class Configurator {
 
     public int getPopulation() {
         return population;
+    }
+
+    public int getGreedyRandomSize() {
+        return greedyRandomSize;
     }
 
     public int getElite() {

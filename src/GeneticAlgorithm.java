@@ -9,31 +9,76 @@ public class GeneticAlgorithm {
         rand = new Random(seed);
     }
 
-    public void initialization(int tam, int numCities) {
-        int randomGen = (int) (tam * 0.8);
-        int greedyGen = (int) (tam * 0.2);
-        if (tam % 2 != 0) {
-            randomGen++;
+    public void initialization(int numIndividuals, int numGens) {
+        int randomIndividual = (int) (numIndividuals * 0.8);
+        int greedyIndividual = (int) (numIndividuals * 0.2);
+        if (numIndividuals % 2 != 0) {
+            randomIndividual++;
         }
+        randomInitialization(randomIndividual, numGens);
+        greedyInitialization(greedyIndividual, numGens);
 
-        Integer[] initialGen = new Integer[numCities];
-        for (int i = 0; i < numCities; i++) {
-            initialGen[i] = i;
+    }
+
+    public void randomInitialization(int randomIndividual, int numGens) {
+        Integer[] initialIndividual = new Integer[numGens];
+        for (int i = 0; i < numGens; i++) {
+            initialIndividual[i] = i;
         }
-        for (int i = 0; i < randomGen; i++) {
-            Integer[] auxGen;
-            auxGen = initialGen.clone();
-            List<Integer> auxList = Arrays.asList(auxGen);
+        for (int i = 0; i < randomIndividual; i++) {
+            List<Integer> auxList = Arrays.asList(initialIndividual.clone());
             Collections.shuffle(auxList);
             Integer[] auxGen2 = auxList.toArray(new Integer[0]);
             population.add(auxGen2);
         }
-        for (int i = 0; i < randomGen; i++) {
-            System.out.println("Gen " + i);
-            System.out.println(Arrays.toString(population.get(i)));
-        }
-
     }
+
+    public void greedyInitialization(int greedyIndividual, int numGens) {
+        /*
+         *
+         *   declaro individuo
+         *   declaro marcaje
+         *       gen inicial aleatoria
+         *       marco gen inicial
+         *       hasta que todas estén marcadas
+         *           compruebo las 5 más cercanas
+         *           almaceno las 5 más cercanas no marcadas
+         *           selecciono una aleatoria
+         *           marco la seleccionada
+
+         */
+        int[][] cities = Utils.citiesByDistance(numGens);
+        ArrayList<Integer> initialIndividual = new ArrayList<>();
+        Set<Integer> marked = new HashSet<>();
+
+        //en otro bucle
+        int gen = rand.nextInt(numGens);
+        marked.add(gen);
+        initialIndividual.add(gen);
+
+        for (int i = 0; i < numGens - 1; i++) {
+            int indexGen = 0;
+            ArrayList<Integer> candidates = new ArrayList<>();
+            int numCandidates = 0;
+            while (numCandidates < Utils.config.getGreedyRandomSize() && (numCandidates != (numGens -1 -indexGen))) {
+                if (!marked.contains(cities[gen][indexGen])) {
+                    candidates.add(cities[gen][indexGen]);
+                    numCandidates++;
+                }
+                indexGen++;
+            }
+
+
+            int randomCandidate = rand.nextInt(numCandidates);
+            marked.add(candidates.get(randomCandidate));
+            initialIndividual.add(candidates.get(randomCandidate));
+            gen = candidates.get(randomCandidate);
+            if (i == 123) {
+                System.out.println("aa");
+            }
+        }
+    }
+
 
     public void selection() {
 
