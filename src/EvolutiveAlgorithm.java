@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class GeneticAlgorithm {
+public class EvolutiveAlgorithm {
 
     private ArrayList<Individual> population = new ArrayList<>();
     private final Random rand;
@@ -8,7 +8,7 @@ public class GeneticAlgorithm {
 
     private ArrayList<Individual> newPopulation = new ArrayList<>();
 
-    public GeneticAlgorithm(long seed) {
+    public EvolutiveAlgorithm(long seed) {
         rand = new Random(seed);
     }
 
@@ -69,7 +69,7 @@ public class GeneticAlgorithm {
             maxFitness.add(Double.MAX_VALUE);
         }
         for (int i = 0; i < numElites; i++) {
-            for (int j = 0; j <population.size(); j++) {
+            for (int j = 0; j < population.size(); j++) {
                 if (population.get(j).getFitness() < maxFitness.get(i) && !elites.contains(population.get(j))) {
                     maxFitness.set(i, population.get(j).getFitness());
                     if (elites.size() == i) {
@@ -103,13 +103,9 @@ public class GeneticAlgorithm {
         }
     }
 
-    public void replacement() {
 
-    }
 
     public void cross() {
-        ArrayList<Individual> newPopulation = new ArrayList<>();
-
         for (int i = 0; i < population.size() / 2; i++) {
             ArrayList<Individual> children = new ArrayList<>();
             int pos1 = rand.nextInt(population.size());
@@ -122,7 +118,6 @@ public class GeneticAlgorithm {
             }
             newPopulation.addAll(children);
         }
-        population = newPopulation;
     }
 
     public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
@@ -151,22 +146,19 @@ public class GeneticAlgorithm {
                 }
             }
         }
-
-        System.out.println("testing");
-        System.out.println(Arrays.deepToString(child.getGens()));
-
-
         return child;
     }
 
-    public void mutation(Individual individuo) {
-        double probMutation = rand.nextDouble(1);
-        if (probMutation < Utils.config.getMutationProb()) {
-            int pos1 = rand.nextInt(individuo.getGens().length);
-            int pos2 = rand.nextInt(individuo.getGens().length);
-            int aux = individuo.getGens()[pos1];
-            individuo.setGen(pos1, individuo.getGens()[pos2]);
-            individuo.setGen(pos2, aux);
+    public void mutation() {
+        for (int i = 0; i < newPopulation.size(); i++) {
+            double probMutation = rand.nextDouble(1);
+            if (probMutation < Utils.config.getMutationProb()) {
+                int pos1 = rand.nextInt(newPopulation.get(i).getGens().length);
+                int pos2 = rand.nextInt(newPopulation.get(i).getGens().length);
+                int aux = newPopulation.get(i).getGens()[pos1];
+                newPopulation.get(i).setGen(pos1, newPopulation.get(i).getGens()[pos2]);
+                newPopulation.get(i).setGen(pos2, aux);
+            }
         }
     }
 
@@ -176,5 +168,10 @@ public class GeneticAlgorithm {
 
     public ArrayList<Individual> getPopulation() {
         return population;
+    }
+
+    public void replacement() {
+        population = newPopulation;
+        newPopulation.clear();
     }
 }
