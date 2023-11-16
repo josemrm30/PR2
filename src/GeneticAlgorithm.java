@@ -6,6 +6,8 @@ public class GeneticAlgorithm {
     private final Random rand;
     private final ArrayList<Individual> elites = new ArrayList<>();
 
+    private ArrayList<Individual> newPopulation = new ArrayList<>();
+
     public GeneticAlgorithm(long seed) {
         rand = new Random(seed);
     }
@@ -70,7 +72,7 @@ public class GeneticAlgorithm {
             for (int j = 0; j <population.size(); j++) {
                 if (population.get(j).getFitness() < maxFitness.get(i) && !elites.contains(population.get(j))) {
                     maxFitness.set(i, population.get(j).getFitness());
-                    if (elites.isEmpty()) {
+                    if (elites.size() == i) {
                         elites.add(population.get(j));
                     } else {
                         elites.set(i, population.get(j));
@@ -82,7 +84,6 @@ public class GeneticAlgorithm {
 
     public void selection(int kbest) {
         elite(Utils.config.getElite());
-        ArrayList<Individual> newPopulation = new ArrayList<>();
         for (int i = 0; i < population.size(); i++) {
             int[] randomPositions = new int[kbest];
 
@@ -100,7 +101,6 @@ public class GeneticAlgorithm {
             }
             newPopulation.add(selected);
         }
-        population = newPopulation;
     }
 
     public void replacement() {
