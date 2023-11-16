@@ -19,6 +19,10 @@ public class Individual {
         return gens;
     }
 
+    public void setGen(int pos, int gen){
+        gens[pos] = gen;
+    }
+
     public double getFitness() {
         return fitness;
     }

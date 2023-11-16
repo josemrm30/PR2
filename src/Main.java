@@ -13,6 +13,10 @@ public class Main {
         for (int i = 0; i < genes.getPopulation().size(); i++) {
             System.out.println("i = " + i + " " + genes.getPopulation().get(i).getFitness());
         }
+        genes.selection(Utils.config.getkBest());
+        for (int i = 0; i < genes.getPopulation().size(); i++) {
+            System.out.println("i = " + i + " " + genes.getPopulation().get(i).getFitness());
+        }
 
     }
 }

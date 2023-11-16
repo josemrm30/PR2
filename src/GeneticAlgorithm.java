@@ -4,6 +4,7 @@ public class GeneticAlgorithm {
 
     private ArrayList<Individual> population = new ArrayList<>();
     private Random rand;
+    private ArrayList<Individual> elites = new ArrayList<>();
 
     public GeneticAlgorithm(long seed) {
         rand = new Random(seed);
@@ -60,25 +61,121 @@ public class GeneticAlgorithm {
         }
     }
 
+    public void elite(int numElites) {
+        ArrayList<Double> maxFitness = new ArrayList<>();
+        for (int i = 0; i < numElites; i++) {
+            maxFitness.add(Double.MAX_VALUE);
+        }
+        for (int i = 0; i < numElites; i++) {
+            for (int j = 0; j < population.size(); j++) {
+                if (population.get(j).getFitness() < maxFitness.get(i) && !elites.contains(population.get(j))) {
+                    maxFitness.set(i,population.get(j).getFitness());
+                    if (elites.isEmpty()) {
+                        elites.add(population.get(j));
+                    }else{
+                        elites.set(i, population.get(j));
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < numElites; i++) {
+            System.out.println(elites.toString());
+        }
 
-    public void selection() {
+    }
 
+    public void selection(int kbest) {
+        elite(Utils.config.getElite());
+        ArrayList<Individual> newPopulation = new ArrayList<>();
+        for (int i = 0; i < population.size(); i++) {
+            int[] randomPositions = new int[kbest];
+
+            for (int j = 0; j < kbest; j++) {
+                randomPositions[j] = rand.nextInt(population.size());
+            }
+            Individual selected = null;
+            double selectedFitness = Double.MAX_VALUE;
+
+            for (int j = 0; j < randomPositions.length; j++) {
+                if (population.get(randomPositions[j]).getFitness() < selectedFitness) {
+                    selected = population.get(randomPositions[j]);
+                    selectedFitness = selected.getFitness();
+                }
+            }
+            newPopulation.add(selected);
+        }
+        population = newPopulation;
     }
 
     public void replacement() {
 
     }
 
-    public void OX2() {
-        OX2Child();
-        OX2Child();
+    public void cross() {
+        ArrayList<Individual> newPopulation = new ArrayList<>();
+
+        for (int i = 0; i < population.size() / 2; i++) {
+            ArrayList<Individual> children = new ArrayList<>();
+            int pos1 = rand.nextInt(population.size());
+            int pos2 = rand.nextInt(population.size());
+            double random = rand.nextDouble(1);
+            children.add(population.get(pos1));
+            children.add(population.get(pos2));
+            if (random < Utils.config.getCrossProb()) {
+                children = crossOX2(children.get(0), children.get(1));
+            }
+            newPopulation.addAll(children);
+        }
     }
 
-    public void OX2Child() {
+    public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
+        ArrayList<Individual> children = new ArrayList<>();
+        children.add(OX2Child(parent1, parent2));
+        children.add(OX2Child(parent2, parent1));
+        return children;
     }
 
-    public void mutation() {
+    public Individual OX2Child(Individual parent1, Individual parent2) {
+        int aleatorio;
+        boolean[] marcadop1 = new boolean[parent1.getGens().length];
+        boolean[] marcadop2 = new boolean[parent2.getGens().length];
+        Individual children;
+        int pos = 0;
+        children = parent2;
+        ArrayList<Integer> restantes = new ArrayList<Integer>();
+        while (pos < parent1.getGens().length) {   // me recorro padre1 y marco
+            aleatorio = rand.nextInt(100);
+            if (aleatorio < 50) {
+                //los busco en padre2 y los marco
+                for (int i = 0; i < parent2.getGens().length; i++) {
+                    if (parent1.getGens()[pos] == parent2.getGens()[i]) {
+                        marcadop2[i] = true;
+                        //padre2.solucion.set(i, -1); //lo marco con -1
+                    }
+                }
+                marcadop1[pos] = true;
+                restantes.add(parent1.getGens()[pos]);
+            }
+            pos++;
+        }
+        int indRestan = 0;
+        for (int i = 0; i < parent2.getGens().length; i++) {
+            if (marcadop2[i]) {
+                children.setGen(i, restantes.get(indRestan));
+                indRestan++;
+            } else {
+                children.setGen(i, parent2.getGens()[i]);
+            }
+        }
+        return children;
+    }
 
+    public void mutacion(Individual individuo) {
+        int pos1 = rand.nextInt(individuo.getGens().length);
+        int pos2 = rand.nextInt(individuo.getGens().length);
+        int aux = individuo.getGens()[pos1];
+        individuo.setGen(pos1, individuo.getGens()[pos2]);
+        individuo.setGen(pos2, aux);
     }
 
     public void evaluation() {
