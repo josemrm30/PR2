@@ -1,5 +1,8 @@
 import java.io.IOException;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class Utils {
@@ -17,7 +20,6 @@ public class Utils {
 
             fileData = new LectorDatos(config.getFiles().get(i));
         }
-
     }
 
     public static LectorDatos getFileData() {

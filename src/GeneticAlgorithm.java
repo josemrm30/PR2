@@ -2,7 +2,7 @@ import java.util.*;
 
 public class GeneticAlgorithm {
 
-    private ArrayList<Integer[]> population = new ArrayList<>();
+    private ArrayList<Individual> population = new ArrayList<>();
     private Random rand;
 
     public GeneticAlgorithm(long seed) {
@@ -29,53 +29,34 @@ public class GeneticAlgorithm {
             List<Integer> auxList = Arrays.asList(initialIndividual.clone());
             Collections.shuffle(auxList);
             Integer[] auxGen2 = auxList.toArray(new Integer[0]);
-            population.add(auxGen2);
+            population.add(new Individual(auxGen2));
         }
     }
 
     public void greedyInitialization(int greedyIndividual, int numGens) {
-        /*
-         *
-         *   declaro individuo
-         *   declaro marcaje
-         *       gen inicial aleatoria
-         *       marco gen inicial
-         *       hasta que todas estén marcadas
-         *           compruebo las 5 más cercanas
-         *           almaceno las 5 más cercanas no marcadas
-         *           selecciono una aleatoria
-         *           marco la seleccionada
+        for (int i = 0; i < greedyIndividual; i++) {
+            int[][] cities = Utils.citiesByDistance(numGens);
+            ArrayList<Integer> initialIndividual = new ArrayList<>();
+            Set<Integer> marked = new HashSet<>();
 
-         */
-        int[][] cities = Utils.citiesByDistance(numGens);
-        ArrayList<Integer> initialIndividual = new ArrayList<>();
-        Set<Integer> marked = new HashSet<>();
+            int gen = rand.nextInt(numGens);
+            marked.add(gen);
+            initialIndividual.add(gen);
 
-        //en otro bucle
-        int gen = rand.nextInt(numGens);
-        marked.add(gen);
-        initialIndividual.add(gen);
-
-        for (int i = 0; i < numGens - 1; i++) {
-            int indexGen = 0;
-            ArrayList<Integer> candidates = new ArrayList<>();
-            int numCandidates = 0;
-            while (numCandidates < Utils.config.getGreedyRandomSize() && (numCandidates != (numGens -1 -indexGen))) {
-                if (!marked.contains(cities[gen][indexGen])) {
-                    candidates.add(cities[gen][indexGen]);
-                    numCandidates++;
+            do {
+                ArrayList<Integer> candidates = new ArrayList<>();
+                for (int j = 0; j < numGens && candidates.size() < Utils.config.getGreedyRandomSize(); j++) {
+                    if (!marked.contains(cities[gen][j])) {
+                        candidates.add(cities[gen][j]);
+                    }
                 }
-                indexGen++;
-            }
+                int randomCandidate = rand.nextInt(candidates.size());
+                marked.add(candidates.get(randomCandidate));
+                initialIndividual.add(candidates.get(randomCandidate));
+                gen = candidates.get(randomCandidate);
 
-
-            int randomCandidate = rand.nextInt(numCandidates);
-            marked.add(candidates.get(randomCandidate));
-            initialIndividual.add(candidates.get(randomCandidate));
-            gen = candidates.get(randomCandidate);
-            if (i == 123) {
-                System.out.println("aa");
-            }
+            } while (initialIndividual.size() < numGens);
+            population.add(new Individual(initialIndividual.toArray(new Integer[0])));
         }
     }
 
@@ -104,4 +85,7 @@ public class GeneticAlgorithm {
 
     }
 
+    public ArrayList<Individual> getPopulation() {
+        return population;
+    }
 }
