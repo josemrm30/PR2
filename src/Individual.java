@@ -8,6 +8,13 @@ public class Individual {
         calculateFitness();
     }
 
+    public Individual(Individual copy) {
+        gens = new Integer[copy.gens.length];
+        System.arraycopy(copy.gens, 0, this.gens, 0, copy.getGens().length);
+
+        this.fitness = copy.fitness;
+    }
+
     public void calculateFitness() {
         double[][] ciudades = Utils.getFileData().getDistancias();
         for (int i = 0; i < gens.length; i++) {

@@ -3,8 +3,8 @@ import java.util.*;
 public class GeneticAlgorithm {
 
     private ArrayList<Individual> population = new ArrayList<>();
-    private Random rand;
-    private ArrayList<Individual> elites = new ArrayList<>();
+    private final Random rand;
+    private final ArrayList<Individual> elites = new ArrayList<>();
 
     public GeneticAlgorithm(long seed) {
         rand = new Random(seed);
@@ -67,21 +67,17 @@ public class GeneticAlgorithm {
             maxFitness.add(Double.MAX_VALUE);
         }
         for (int i = 0; i < numElites; i++) {
-            for (int j = 0; j < population.size(); j++) {
+            for (int j = 0; j <population.size(); j++) {
                 if (population.get(j).getFitness() < maxFitness.get(i) && !elites.contains(population.get(j))) {
-                    maxFitness.set(i,population.get(j).getFitness());
+                    maxFitness.set(i, population.get(j).getFitness());
                     if (elites.isEmpty()) {
                         elites.add(population.get(j));
-                    }else{
+                    } else {
                         elites.set(i, population.get(j));
                     }
                 }
             }
         }
-        for (int i = 0; i < numElites; i++) {
-            System.out.println(elites.toString());
-        }
-
     }
 
     public void selection(int kbest) {
@@ -96,9 +92,9 @@ public class GeneticAlgorithm {
             Individual selected = null;
             double selectedFitness = Double.MAX_VALUE;
 
-            for (int j = 0; j < randomPositions.length; j++) {
-                if (population.get(randomPositions[j]).getFitness() < selectedFitness) {
-                    selected = population.get(randomPositions[j]);
+            for (int randomPosition : randomPositions) {
+                if (population.get(randomPosition).getFitness() < selectedFitness) {
+                    selected = population.get(randomPosition);
                     selectedFitness = selected.getFitness();
                 }
             }
@@ -126,6 +122,7 @@ public class GeneticAlgorithm {
             }
             newPopulation.addAll(children);
         }
+        population = newPopulation;
     }
 
     public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
@@ -136,46 +133,41 @@ public class GeneticAlgorithm {
     }
 
     public Individual OX2Child(Individual parent1, Individual parent2) {
-        int aleatorio;
-        boolean[] marcadop1 = new boolean[parent1.getGens().length];
-        boolean[] marcadop2 = new boolean[parent2.getGens().length];
-        Individual children;
-        int pos = 0;
-        children = parent2;
-        ArrayList<Integer> restantes = new ArrayList<Integer>();
-        while (pos < parent1.getGens().length) {   // me recorro padre1 y marco
-            aleatorio = rand.nextInt(100);
-            if (aleatorio < 50) {
-                //los busco en padre2 y los marco
-                for (int i = 0; i < parent2.getGens().length; i++) {
-                    if (parent1.getGens()[pos] == parent2.getGens()[i]) {
-                        marcadop2[i] = true;
-                        //padre2.solucion.set(i, -1); //lo marco con -1
+
+        Individual child = new Individual(parent2);
+        boolean[] marked1 = new boolean[parent1.getGens().length];
+        for (int i = 0; i < parent1.getGens().length; i++) {
+            double random = rand.nextDouble(1);
+            if (random < 0.5) {
+                marked1[i] = true;
+            }
+        }
+        for (int i = 0; i < parent2.getGens().length; i++) {
+            for (int j = 0; j < parent1.getGens().length; j++) {
+                if (marked1[i]) {
+                    if (Objects.equals(parent2.getGens()[j], parent1.getGens()[i])) {
+                        child.getGens()[j] = parent1.getGens()[i];
                     }
                 }
-                marcadop1[pos] = true;
-                restantes.add(parent1.getGens()[pos]);
-            }
-            pos++;
-        }
-        int indRestan = 0;
-        for (int i = 0; i < parent2.getGens().length; i++) {
-            if (marcadop2[i]) {
-                children.setGen(i, restantes.get(indRestan));
-                indRestan++;
-            } else {
-                children.setGen(i, parent2.getGens()[i]);
             }
         }
-        return children;
+
+        System.out.println("testing");
+        System.out.println(Arrays.deepToString(child.getGens()));
+
+
+        return child;
     }
 
-    public void mutacion(Individual individuo) {
-        int pos1 = rand.nextInt(individuo.getGens().length);
-        int pos2 = rand.nextInt(individuo.getGens().length);
-        int aux = individuo.getGens()[pos1];
-        individuo.setGen(pos1, individuo.getGens()[pos2]);
-        individuo.setGen(pos2, aux);
+    public void mutation(Individual individuo) {
+        double probMutation = rand.nextDouble(1);
+        if (probMutation < Utils.config.getMutationProb()) {
+            int pos1 = rand.nextInt(individuo.getGens().length);
+            int pos2 = rand.nextInt(individuo.getGens().length);
+            int aux = individuo.getGens()[pos1];
+            individuo.setGen(pos1, individuo.getGens()[pos2]);
+            individuo.setGen(pos2, aux);
+        }
     }
 
     public void evaluation() {
