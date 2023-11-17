@@ -18,6 +18,8 @@ public class Configurator {
     private int evaluations;
     private int time;
     private Boolean consoleLog;
+    private double randomRate;
+    private double greedyRate;
 
     public Configurator(String path) throws IOException {
         String line;
@@ -67,6 +69,12 @@ public class Configurator {
                     break;
                 case "ConsoleLog":
                     consoleLog = Boolean.parseBoolean(splited[1]);
+                    break;
+                case "RandomRate":
+                    randomRate = Double.parseDouble(splited[1]);
+                    break;
+                case "GreedyRate":
+                    greedyRate = Double.parseDouble(splited[1]);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + splited[0]);
@@ -124,5 +132,13 @@ public class Configurator {
 
     public Boolean getConsoleLog() {
         return consoleLog;
+    }
+
+    public double getRandomRate() {
+        return randomRate;
+    }
+
+    public double getGreedyRate() {
+        return greedyRate;
     }
 }

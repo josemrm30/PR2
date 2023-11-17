@@ -10,3 +10,5 @@ CrossProb=0.7
 MutationProb=0.1
 Evaluations=50000
 Time=60
+RandomRate=0.8
+GreedyRate=0.2

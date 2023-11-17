@@ -48,4 +48,12 @@ public class Utils {
     private static void orderCities(List<Map.Entry<Integer, Double>> cityOrder) {
         cityOrder.sort(Map.Entry.comparingByValue());
     }
+
+    public static Integer[] swap(Integer[] gens, int i, int j) {
+        Integer[] newSol = gens.clone();
+        int temp = newSol[i];
+        newSol[i] = newSol[j];
+        newSol[j] = temp;
+        return newSol;
+    }
 }

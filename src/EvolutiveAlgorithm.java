@@ -13,8 +13,8 @@ public class EvolutiveAlgorithm {
     }
 
     public void initialization(int numIndividuals, int numGens) {
-        int randomIndividual = (int) (numIndividuals * 0.8);
-        int greedyIndividual = (int) (numIndividuals * 0.2);
+        int randomIndividual = (int) (numIndividuals * Utils.config.getRandomRate());
+        int greedyIndividual = (int) (numIndividuals * Utils.config.getGreedyRate());
         if (numIndividuals % 2 != 0) {
             randomIndividual++;
         }
@@ -104,20 +104,21 @@ public class EvolutiveAlgorithm {
     }
 
 
-
     public void cross() {
-        for (int i = 0; i < population.size() / 2; i++) {
+        ArrayList<Individual> auxPopulation = new ArrayList<>();
+        for (int i = 0; i < newPopulation.size() / 2; i++) {
             ArrayList<Individual> children = new ArrayList<>();
-            int pos1 = rand.nextInt(population.size());
-            int pos2 = rand.nextInt(population.size());
+            int pos1 = rand.nextInt(newPopulation.size());
+            int pos2 = rand.nextInt(newPopulation.size());
             double random = rand.nextDouble(1);
-            children.add(population.get(pos1));
-            children.add(population.get(pos2));
+            children.add(newPopulation.get(pos1));
+            children.add(newPopulation.get(pos2));
             if (random < Utils.config.getCrossProb()) {
                 children = crossOX2(children.get(0), children.get(1));
             }
-            newPopulation.addAll(children);
+            auxPopulation.addAll(children);
         }
+        newPopulation = auxPopulation;
     }
 
     public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
@@ -128,22 +129,19 @@ public class EvolutiveAlgorithm {
     }
 
     public Individual OX2Child(Individual parent1, Individual parent2) {
-
+        ArrayList<Integer> contained = new ArrayList<>();
         Individual child = new Individual(parent2);
-        boolean[] marked1 = new boolean[parent1.getGens().length];
         for (int i = 0; i < parent1.getGens().length; i++) {
             double random = rand.nextDouble(1);
             if (random < 0.5) {
-                marked1[i] = true;
+                contained.add(parent1.getGens()[i]);
             }
         }
+        Iterator<Integer> it = contained.iterator();
+
         for (int i = 0; i < parent2.getGens().length; i++) {
-            for (int j = 0; j < parent1.getGens().length; j++) {
-                if (marked1[i]) {
-                    if (Objects.equals(parent2.getGens()[j], parent1.getGens()[i])) {
-                        child.getGens()[j] = parent1.getGens()[i];
-                    }
-                }
+            if (contained.contains(parent2.getGens()[i])) {
+                child.getGens()[i] = it.next();
             }
         }
         return child;
@@ -155,6 +153,7 @@ public class EvolutiveAlgorithm {
             if (probMutation < Utils.config.getMutationProb()) {
                 int pos1 = rand.nextInt(newPopulation.get(i).getGens().length);
                 int pos2 = rand.nextInt(newPopulation.get(i).getGens().length);
+                Utils.swap(newPopulation.get(i).getGens(), pos1, pos2);
                 int aux = newPopulation.get(i).getGens()[pos1];
                 newPopulation.get(i).setGen(pos1, newPopulation.get(i).getGens()[pos2]);
                 newPopulation.get(i).setGen(pos2, aux);
@@ -162,16 +161,33 @@ public class EvolutiveAlgorithm {
         }
     }
 
-    public void evaluation() {
+    public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
+        for (int i = 0; i < popu.size(); i++) {
+            calculateFitness(popu.get(i));
+            actualEvaluations++;
+        }
+        return actualEvaluations;
+    }
 
+    public void calculateFitness(Individual evaluated) {
+        int fitness = 0;
+        double[][] ciudades = Utils.getFileData().getDistancias();
+        for (int i = 0; i < evaluated.getGens().length; i++) {
+            fitness += ciudades[evaluated.getGens()[i]][evaluated.getGens()[(i + 1) % evaluated.getGens().length]];
+        }
+        evaluated.setFitness(fitness);
     }
 
     public ArrayList<Individual> getPopulation() {
         return population;
     }
 
+    public ArrayList<Individual> getNewPopulation() {
+        return newPopulation;
+    }
+
     public void replacement() {
         population = newPopulation;
-        newPopulation.clear();
+        newPopulation = new ArrayList<>();
     }
 }

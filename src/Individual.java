@@ -5,22 +5,16 @@ public class Individual {
 
     public Individual(Integer[] gens) {
         this.gens = gens;
-        calculateFitness();
     }
 
     public Individual(Individual copy) {
         gens = new Integer[copy.gens.length];
         System.arraycopy(copy.gens, 0, this.gens, 0, copy.getGens().length);
 
-        this.fitness = copy.fitness;
+        this.fitness = 0;
     }
 
-    public void calculateFitness() {
-        double[][] ciudades = Utils.getFileData().getDistancias();
-        for (int i = 0; i < gens.length; i++) {
-            fitness += ciudades[gens[i]][gens[(i + 1) % gens.length]];
-        }
-    }
+
 
     public Integer[] getGens() {
         return gens;
@@ -32,5 +26,9 @@ public class Individual {
 
     public double getFitness() {
         return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
     }
 }
