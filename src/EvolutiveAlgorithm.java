@@ -188,6 +188,11 @@ public class EvolutiveAlgorithm {
 
     public void replacement() {
         population = newPopulation;
+        worstTournament();
         newPopulation = new ArrayList<>();
+    }
+
+    public void worstTournament(){ //TODO: comprobar si el elite ya está dentro y si no torneo de los kworst y reemplazamiento por uno de los elites
+
     }
 }
