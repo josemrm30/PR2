@@ -16,10 +16,7 @@ public class Utils {
     public static void loadFiles(String[] args) throws IOException {
         config = new Configurator(args[0]);
 
-        for (int i = 0; i < config.getFiles().size(); i++) {
-
-            fileData = new LectorDatos(config.getFiles().get(i));
-        }
+            fileData = new LectorDatos(config.getFile());
     }
 
     public static LectorDatos getFileData() {
@@ -49,11 +46,10 @@ public class Utils {
         cityOrder.sort(Map.Entry.comparingByValue());
     }
 
-    public static Integer[] swap(Integer[] gens, int i, int j) {
+    public static void swap(Integer[] gens, int i, int j) {
         Integer[] newSol = gens.clone();
         int temp = newSol[i];
         newSol[i] = newSol[j];
         newSol[j] = temp;
-        return newSol;
     }
 }

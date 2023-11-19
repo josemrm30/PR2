@@ -1,6 +1,6 @@
 public class Individual {
 
-    private Integer[] gens;
+    private final Integer[] gens;
     private double fitness = 0;
 
     public Individual(Integer[] gens) {

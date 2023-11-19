@@ -1,15 +1,20 @@
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class EvolutiveAlgorithm {
-
+    private int generation = 0;
     private ArrayList<Individual> population = new ArrayList<>();
     private final Random rand;
-    private final ArrayList<Individual> elites = new ArrayList<>();
-
+    private final Logger log;
+    private ArrayList<Individual> elites;
+    private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
 
-    public EvolutiveAlgorithm(long seed) {
+    public EvolutiveAlgorithm(long seed, Logger log) {
         rand = new Random(seed);
+        this.log = log;
     }
 
     public void initialization(int numIndividuals, int numGens) {
@@ -20,7 +25,6 @@ public class EvolutiveAlgorithm {
         }
         randomInitialization(randomIndividual, numGens);
         greedyInitialization(greedyIndividual, numGens);
-
     }
 
     public void randomInitialization(int randomIndividual, int numGens) {
@@ -64,30 +68,49 @@ public class EvolutiveAlgorithm {
     }
 
     public void elite(int numElites) {
+        elites = new ArrayList<>();
         ArrayList<Double> maxFitness = new ArrayList<>();
         for (int i = 0; i < numElites; i++) {
             maxFitness.add(Double.MAX_VALUE);
         }
         for (int i = 0; i < numElites; i++) {
-            for (int j = 0; j < population.size(); j++) {
-                if (population.get(j).getFitness() < maxFitness.get(i) && !elites.contains(population.get(j))) {
-                    maxFitness.set(i, population.get(j).getFitness());
+            for (Individual individual : population) {
+                if (individual.getFitness() < maxFitness.get(i) && !elites.contains(individual)) {
+                    maxFitness.set(i, individual.getFitness());
                     if (elites.size() == i) {
-                        elites.add(population.get(j));
+                        elites.add(individual);
                     } else {
-                        elites.set(i, population.get(j));
+                        elites.set(i, individual);
                     }
                 }
             }
         }
+        StringBuilder msg = new StringBuilder();
+        for (int i = 0; i < elites.size(); i++) {
+            msg.append(" Fitness = ").append(elites.get(i).getFitness()).append(" Elite ").append(i).append(" ").append(Arrays.deepToString(elites.get(i).getGens())).append("\n");
+        }
+        log.log(Level.INFO, "Generation " + generation);
+        log.log(Level.INFO, msg.toString());
     }
 
-    public void selection(int kbest) {
-        elite(Utils.config.getElite());
-        for (int i = 0; i < population.size(); i++) {
-            int[] randomPositions = new int[kbest];
+    public void selection(int kBest) {
+        generation++;
 
-            for (int j = 0; j < kbest; j++) {
+        if (generation < 3 || generation % 50 == 0) {
+            StringBuilder msg = new StringBuilder();
+            for (Individual individual : population) {
+                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
+            }
+            log.log(Level.INFO, "Generation " + generation);
+            log.log(Level.INFO, msg.toString());
+
+        }
+        elite(Utils.config.getElite());
+
+        for (int i = 0; i < population.size(); i++) {
+            int[] randomPositions = new int[kBest];
+
+            for (int j = 0; j < kBest; j++) {
                 randomPositions[j] = rand.nextInt(population.size());
             }
             Individual selected = null;
@@ -148,32 +171,32 @@ public class EvolutiveAlgorithm {
     }
 
     public void mutation() {
-        for (int i = 0; i < newPopulation.size(); i++) {
+        for (Individual individual : newPopulation) {
             double probMutation = rand.nextDouble(1);
             if (probMutation < Utils.config.getMutationProb()) {
-                int pos1 = rand.nextInt(newPopulation.get(i).getGens().length);
-                int pos2 = rand.nextInt(newPopulation.get(i).getGens().length);
-                Utils.swap(newPopulation.get(i).getGens(), pos1, pos2);
-                int aux = newPopulation.get(i).getGens()[pos1];
-                newPopulation.get(i).setGen(pos1, newPopulation.get(i).getGens()[pos2]);
-                newPopulation.get(i).setGen(pos2, aux);
+                int pos1 = rand.nextInt(individual.getGens().length);
+                int pos2 = rand.nextInt(individual.getGens().length);
+                Utils.swap(individual.getGens(), pos1, pos2);
+                int aux = individual.getGens()[pos1];
+                individual.setGen(pos1, individual.getGens()[pos2]);
+                individual.setGen(pos2, aux);
             }
         }
     }
 
     public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
-        for (int i = 0; i < popu.size(); i++) {
-            calculateFitness(popu.get(i));
+        for (Individual individual : popu) {
+            calculateFitness(individual);
             actualEvaluations++;
         }
         return actualEvaluations;
     }
 
     public void calculateFitness(Individual evaluated) {
-        int fitness = 0;
-        double[][] ciudades = Utils.getFileData().getDistancias();
+        double fitness = 0;
+        double[][] cities = Utils.getFileData().getDistancias();
         for (int i = 0; i < evaluated.getGens().length; i++) {
-            fitness += ciudades[evaluated.getGens()[i]][evaluated.getGens()[(i + 1) % evaluated.getGens().length]];
+            fitness += cities[evaluated.getGens()[i]][evaluated.getGens()[(i + 1) % evaluated.getGens().length]];
         }
         evaluated.setFitness(fitness);
     }
@@ -187,12 +210,46 @@ public class EvolutiveAlgorithm {
     }
 
     public void replacement() {
-        population = newPopulation;
         worstTournament();
+        population = newPopulation;
         newPopulation = new ArrayList<>();
     }
 
-    public void worstTournament(){ //TODO: comprobar si el elite ya está dentro y si no torneo de los kworst y reemplazamiento por uno de los elites
+    public void worstTournament() {
+        int kWorst = Utils.config.getKWorst();
+        for (Individual elite : elites) {
+            if (!newPopulation.contains(elite)) {
+                worst(kWorst);
+                int randomPosition = rand.nextInt(kWorst);
+                Individual aux = worsts.get(randomPosition);
+                int position = newPopulation.indexOf(aux);
+                newPopulation.set(position, elite);
+            }
+        }
+    }
 
+    public void worst(int kWorst) {
+        worsts = new ArrayList<>();
+        ArrayList<Double> minFitness = new ArrayList<>();
+        for (int i = 0; i < kWorst; i++) {
+            minFitness.add(Double.MIN_VALUE);
+        }
+        for (int i = 0; i < kWorst; i++) {
+            for (Individual individual : newPopulation) {
+                if (individual.getFitness() > minFitness.get(i) && !worsts.contains(individual)) {
+                    minFitness.set(i, individual.getFitness());
+                    if (worsts.size() == i) {
+                        worsts.add(individual);
+                    } else {
+                        worsts.set(i, individual);
+                    }
+                }
+            }
+        }
+    }
+
+    public ArrayList<Individual> getElites() {
+        return elites;
     }
 }
+

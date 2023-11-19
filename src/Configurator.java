@@ -1,13 +1,10 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Configurator {
-    private final ArrayList<String> files = new ArrayList<>();
-    private final ArrayList<String> algorithms = new ArrayList<>();
-    private final ArrayList<Long> seeds = new ArrayList<>();
+    private String file = "";
+    private Long seed;
     private int population;
     private int greedyRandomSize;
     private int elite;
@@ -31,14 +28,10 @@ public class Configurator {
             String[] splited = line.split("=");
             switch (splited[0]) {
                 case "Files":
-                    String[] v = splited[1].split(" ");
-                    files.addAll(Arrays.asList(v));
+                    file = splited[1];
                     break;
                 case "Seeds":
-                    String[] vSeeds = splited[1].split(" ");
-                    for (String vSeed : vSeeds) {
-                        seeds.add(Long.parseLong(vSeed));
-                    }
+                    seed = Long.parseLong(splited[1]);
                     break;
                 case "Population":
                     population = Integer.parseInt(splited[1]);
@@ -82,16 +75,13 @@ public class Configurator {
         }
     }
 
-    public ArrayList<String> getFiles() {
-        return files;
+    public String getFile() {
+        return file;
     }
 
-    public ArrayList<String> getAlgorithms() {
-        return algorithms;
-    }
 
-    public ArrayList<Long> getSeeds() {
-        return seeds;
+    public Long getSeed() {
+        return seed;
     }
 
     public int getPopulation() {
@@ -106,11 +96,11 @@ public class Configurator {
         return elite;
     }
 
-    public int getkBest() {
+    public int getKBest() {
         return kBest;
     }
 
-    public int getkWorst() {
+    public int getKWorst() {
         return kWorst;
     }
 
