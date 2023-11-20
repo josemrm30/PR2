@@ -100,7 +100,7 @@ public class EvolutiveAlgorithm {
     public void selection() {
         generation++;
 
-        if (generation < 3 || generation % 50 == 0) {
+        if (generation < 3 || generation % 100 == 0) {
             StringBuilder msg = new StringBuilder();
             for (Individual individual : population) {
                 msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
@@ -252,10 +252,6 @@ public class EvolutiveAlgorithm {
                 }
             }
         }
-    }
-
-    public ArrayList<Individual> getElites() {
-        return elites;
     }
 }
 
