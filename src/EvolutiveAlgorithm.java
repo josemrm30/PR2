@@ -4,6 +4,8 @@ import java.util.logging.Logger;
 
 
 public class EvolutiveAlgorithm {
+    private final int numElites;
+    private final int numKBest;
     private int generation = 0;
     private ArrayList<Individual> population = new ArrayList<>();
     private final Random rand;
@@ -12,8 +14,10 @@ public class EvolutiveAlgorithm {
     private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
 
-    public EvolutiveAlgorithm(long seed, Logger log) {
+    public EvolutiveAlgorithm(long seed, int elite, int kbest, Logger log) {
         rand = new Random(seed);
+        numElites = elite;
+        numKBest = kbest;
         this.log = log;
     }
 
@@ -67,7 +71,7 @@ public class EvolutiveAlgorithm {
         }
     }
 
-    public void elite(int numElites) {
+    public void elite() {
         elites = new ArrayList<>();
         ArrayList<Double> maxFitness = new ArrayList<>();
         for (int i = 0; i < numElites; i++) {
@@ -93,7 +97,7 @@ public class EvolutiveAlgorithm {
         log.log(Level.INFO, msg.toString());
     }
 
-    public void selection(int kBest) {
+    public void selection() {
         generation++;
 
         if (generation < 3 || generation % 50 == 0) {
@@ -105,12 +109,12 @@ public class EvolutiveAlgorithm {
             log.log(Level.INFO, msg.toString());
 
         }
-        elite(Utils.config.getElite());
+        elite();
 
         for (int i = 0; i < population.size(); i++) {
-            int[] randomPositions = new int[kBest];
+            int[] randomPositions = new int[numKBest];
 
-            for (int j = 0; j < kBest; j++) {
+            for (int j = 0; j < numKBest; j++) {
                 randomPositions[j] = rand.nextInt(population.size());
             }
             Individual selected = null;
@@ -186,8 +190,10 @@ public class EvolutiveAlgorithm {
 
     public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
         for (Individual individual : popu) {
-            calculateFitness(individual);
-            actualEvaluations++;
+            if (individual.getFitness() == 0) {
+                calculateFitness(individual);
+                actualEvaluations++;
+            }
         }
         return actualEvaluations;
     }

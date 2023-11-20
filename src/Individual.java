@@ -15,12 +15,11 @@ public class Individual {
     }
 
 
-
     public Integer[] getGens() {
         return gens;
     }
 
-    public void setGen(int pos, int gen){
+    public void setGen(int pos, int gen) {
         gens[pos] = gen;
     }
 

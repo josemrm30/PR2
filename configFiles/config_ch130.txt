@@ -1,0 +1,14 @@
+Files=ch130.tsp
+Seeds=26512592 51262592 26255192 92512526 25265192
+ConsoleLog=False
+GreedyRandomSize=5
+Population=50 100
+Elite=1 2
+kBest=2 3
+kWorst=3
+CrossProb=0.7
+MutationProb=0.1
+Evaluations=50000
+Time=60
+RandomRate=0.8
+GreedyRate=0.2

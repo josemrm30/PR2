@@ -1,14 +1,15 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Configurator {
     private String file = "";
-    private Long seed;
-    private int population;
+    private ArrayList<Long> seeds = new ArrayList<>();
+    private ArrayList<Integer> population = new ArrayList<>();
     private int greedyRandomSize;
-    private int elite;
-    private int kBest;
+    private ArrayList<Integer> elite = new ArrayList<>();
+    private ArrayList<Integer> kBest = new ArrayList<>();
     private int kWorst;
     private double crossProb;
     private double mutationProb;
@@ -31,19 +32,31 @@ public class Configurator {
                     file = splited[1];
                     break;
                 case "Seeds":
-                    seed = Long.parseLong(splited[1]);
+                    String[] vSeeds = splited[1].split(" ");
+                    for (String vSeed : vSeeds) {
+                        seeds.add(Long.parseLong(vSeed));
+                    }
                     break;
                 case "Population":
-                    population = Integer.parseInt(splited[1]);
+                    String[] vPopulations = splited[1].split(" ");
+                    for (String vPopulation : vPopulations) {
+                        population.add(Integer.parseInt(vPopulation));
+                    }
                     break;
                 case "GreedyRandomSize":
                     greedyRandomSize = Integer.parseInt(splited[1]);
                     break;
                 case "Elite":
-                    elite = Integer.parseInt(splited[1]);
+                    String[] vElites = splited[1].split(" ");
+                    for (String vElite : vElites) {
+                        elite.add(Integer.parseInt(vElite));
+                    }
                     break;
                 case "kBest":
-                    kBest = Integer.parseInt(splited[1]);
+                    String[] vkBests = splited[1].split(" ");
+                    for (String vkBest : vkBests) {
+                        kBest.add(Integer.parseInt(vkBest));
+                    }
                     break;
                 case "kWorst":
                     kWorst = Integer.parseInt(splited[1]);
@@ -80,11 +93,11 @@ public class Configurator {
     }
 
 
-    public Long getSeed() {
-        return seed;
+    public ArrayList<Long> getSeeds() {
+        return seeds;
     }
 
-    public int getPopulation() {
+    public ArrayList<Integer> getPopulation() {
         return population;
     }
 
@@ -92,11 +105,11 @@ public class Configurator {
         return greedyRandomSize;
     }
 
-    public int getElite() {
+    public ArrayList<Integer> getElite() {
         return elite;
     }
 
-    public int getKBest() {
+    public ArrayList<Integer> getKBest() {
         return kBest;
     }
 

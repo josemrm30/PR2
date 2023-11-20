@@ -16,7 +16,7 @@ public class Utils {
     public static void loadFiles(String[] args) throws IOException {
         config = new Configurator(args[0]);
 
-            fileData = new LectorDatos(config.getFile());
+        fileData = new LectorDatos(config.getFile());
     }
 
     public static LectorDatos getFileData() {
