@@ -1,0 +1,261 @@
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+public class EvolutiveAlgorithm {
+    private int generation = 0;
+    private ArrayList<Individual> population = new ArrayList<>();
+    private final Random rand;
+    private final Logger log;
+    private ArrayList<Individual> elites;
+    private ArrayList<Individual> worsts;
+    private ArrayList<Individual> newPopulation = new ArrayList<>();
+
+    public EvolutiveAlgorithm(long seed, Logger log) {
+        rand = new Random(seed);
+        this.log = log;
+    }
+
+    public void initialization(int numIndividuals, int numGens) {
+        int randomIndividual = (int) (numIndividuals * Utils.config.getRandomRate());
+        int greedyIndividual = (int) (numIndividuals * Utils.config.getGreedyRate());
+        if (numIndividuals % 2 != 0) {
+            randomIndividual++;
+        }
+        randomInitialization(randomIndividual, numGens);
+        greedyInitialization(greedyIndividual, numGens);
+    }
+
+    public void randomInitialization(int randomIndividual, int numGens) {
+        Integer[] initialIndividual = new Integer[numGens];
+        for (int i = 0; i < numGens; i++) {
+            initialIndividual[i] = i;
+        }
+        for (int i = 0; i < randomIndividual; i++) {
+            List<Integer> auxList = Arrays.asList(initialIndividual.clone());
+            Collections.shuffle(auxList);
+            Integer[] auxGen2 = auxList.toArray(new Integer[0]);
+            Individual nuevo = new Individual(auxGen2);
+            calculateFitness(nuevo);
+            population.add(nuevo);
+        }
+    }
+
+    public void greedyInitialization(int greedyIndividual, int numGens) {
+        for (int i = 0; i < greedyIndividual; i++) {
+            int[][] cities = Utils.citiesByDistance(numGens);
+            ArrayList<Integer> initialIndividual = new ArrayList<>();
+            Set<Integer> marked = new HashSet<>();
+
+            int gen = rand.nextInt(numGens);
+            marked.add(gen);
+            initialIndividual.add(gen);
+
+            do {
+                ArrayList<Integer> candidates = new ArrayList<>();
+                for (int j = 0; j < numGens && candidates.size() < Utils.config.getGreedyRandomSize(); j++) {
+                    if (!marked.contains(cities[gen][j])) {
+                        candidates.add(cities[gen][j]);
+                    }
+                }
+                int randomCandidate = rand.nextInt(candidates.size());
+                marked.add(candidates.get(randomCandidate));
+                initialIndividual.add(candidates.get(randomCandidate));
+                gen = candidates.get(randomCandidate);
+
+            } while (initialIndividual.size() < numGens);
+            Individual nuevo =new Individual(initialIndividual.toArray(new Integer[0]));
+            calculateFitness(nuevo);
+            population.add(nuevo);
+        }
+    }
+
+    public void elite(int numElites) {
+        elites = new ArrayList<>();
+        ArrayList<Double> maxFitness = new ArrayList<>();
+        for (int i = 0; i < numElites; i++) {
+            maxFitness.add(Double.MAX_VALUE);
+        }
+        for (int i = 0; i < numElites; i++) {
+            for (Individual individual : population) {
+                if (individual.getFitness() < maxFitness.get(i) && !elites.contains(individual)) {
+                    maxFitness.set(i, individual.getFitness());
+                    if (elites.size() == i) {
+                        elites.add(individual);
+                    } else {
+                        elites.set(i, individual);
+                    }
+                }
+            }
+        }
+        StringBuilder msg = new StringBuilder();
+        for (int i = 0; i < elites.size(); i++) {
+            msg.append(" Fitness = ").append(elites.get(i).getFitness()).append(" Elite ").append(i).append(" ").append(Arrays.deepToString(elites.get(i).getGens())).append("\n");
+        }
+        log.log(Level.INFO, "Generation " + generation);
+        log.log(Level.INFO, msg.toString());
+    }
+
+    public void selection(int kBest) {
+        generation++;
+
+        if (generation < 3 || generation % 50 == 0) {
+            StringBuilder msg = new StringBuilder();
+            for (Individual individual : population) {
+                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
+            }
+            log.log(Level.INFO, "Generation " + generation);
+            log.log(Level.INFO, msg.toString());
+
+        }
+        elite(Utils.config.getElite());
+
+        for (int i = 0; i < population.size(); i++) {
+            int[] randomPositions = new int[kBest];
+
+            for (int j = 0; j < kBest; j++) {
+                randomPositions[j] = rand.nextInt(population.size());
+            }
+            Individual selected = null;
+            double selectedFitness = Double.MAX_VALUE;
+
+            for (int randomPosition : randomPositions) {
+                if (population.get(randomPosition).getFitness() < selectedFitness) {
+                    selected = population.get(randomPosition);
+                    selectedFitness = selected.getFitness();
+                }
+            }
+            newPopulation.add(selected);
+        }
+    }
+
+
+    public void cross() {
+        ArrayList<Individual> auxPopulation = new ArrayList<>();
+        for (int i = 0; i < newPopulation.size() / 2; i++) {
+            ArrayList<Individual> children = new ArrayList<>();
+            int pos1 = rand.nextInt(newPopulation.size());
+            int pos2 = rand.nextInt(newPopulation.size());
+            double random = rand.nextDouble(1);
+            children.add(newPopulation.get(pos1));
+            children.add(newPopulation.get(pos2));
+            if (random < Utils.config.getCrossProb()) {
+                children = crossOX2(children.get(0), children.get(1));
+            }
+            auxPopulation.addAll(children);
+        }
+        newPopulation = auxPopulation;
+    }
+
+    public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
+        ArrayList<Individual> children = new ArrayList<>();
+        children.add(OX2Child(parent1, parent2));
+        children.add(OX2Child(parent2, parent1));
+        return children;
+    }
+
+    public Individual OX2Child(Individual parent1, Individual parent2) {
+        ArrayList<Integer> contained = new ArrayList<>();
+        Individual child = new Individual(parent2);
+        for (int i = 0; i < parent1.getGens().length; i++) {
+            double random = rand.nextDouble(1);
+            if (random < 0.5) {
+                contained.add(parent1.getGens()[i]);
+            }
+        }
+        Iterator<Integer> it = contained.iterator();
+
+        for (int i = 0; i < parent2.getGens().length; i++) {
+            if (contained.contains(parent2.getGens()[i])) {
+                child.getGens()[i] = it.next();
+            }
+        }
+        return child;
+    }
+
+    public void mutation() {
+        for (Individual individual : newPopulation) {
+            double probMutation = rand.nextDouble(1);
+            if (probMutation < Utils.config.getMutationProb()) {
+                int pos1 = rand.nextInt(individual.getGens().length);
+                int pos2 = rand.nextInt(individual.getGens().length);
+                Utils.swap(individual.getGens(), pos1, pos2);
+                int aux = individual.getGens()[pos1];
+                individual.setGen(pos1, individual.getGens()[pos2]);
+                individual.setGen(pos2, aux);
+            }
+        }
+    }
+
+    public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
+        for (Individual individual : popu) {
+            if(individual.getFitness() != 0) {
+                calculateFitness(individual);
+                actualEvaluations++;
+            }
+        }
+        return actualEvaluations;
+    }
+
+    public void calculateFitness(Individual evaluated) {
+        double fitness = 0;
+        double[][] cities = Utils.getFileData().getDistancias();
+        for (int i = 0; i < evaluated.getGens().length; i++) {
+            fitness += cities[evaluated.getGens()[i]][evaluated.getGens()[(i + 1) % evaluated.getGens().length]];
+        }
+        evaluated.setFitness(fitness);
+    }
+
+    public ArrayList<Individual> getPopulation() {
+        return population;
+    }
+
+    public ArrayList<Individual> getNewPopulation() {
+        return newPopulation;
+    }
+
+    public void replacement() {
+        worstTournament();
+        population = newPopulation;
+        newPopulation = new ArrayList<>();
+    }
+
+    public void worstTournament() {
+        int kWorst = Utils.config.getKWorst();
+        for (Individual elite : elites) {
+            if (!newPopulation.contains(elite)) {
+                worst(kWorst);
+                int randomPosition = rand.nextInt(kWorst);
+                Individual aux = worsts.get(randomPosition);
+                int position = newPopulation.indexOf(aux);
+                newPopulation.set(position, elite);
+            }
+        }
+    }
+
+    public void worst(int kWorst) {
+        worsts = new ArrayList<>();
+        ArrayList<Double> minFitness = new ArrayList<>();
+        for (int i = 0; i < kWorst; i++) {
+            minFitness.add(Double.MIN_VALUE);
+        }
+        for (int i = 0; i < kWorst; i++) {
+            for (Individual individual : newPopulation) {
+                if (individual.getFitness() > minFitness.get(i) && !worsts.contains(individual)) {
+                    minFitness.set(i, individual.getFitness());
+                    if (worsts.size() == i) {
+                        worsts.add(individual);
+                    } else {
+                        worsts.set(i, individual);
+                    }
+                }
+            }
+        }
+    }
+
+    public ArrayList<Individual> getElites() {
+        return elites;
+    }
+}
+

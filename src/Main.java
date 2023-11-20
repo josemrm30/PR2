@@ -35,9 +35,8 @@ public class Main {
         EvolutiveAlgorithm genes = new EvolutiveAlgorithm(Utils.config.getSeed(), log);
 
         genes.initialization(Utils.config.getPopulation(), data.getCiudades().length);
+        actualEvaluations = genes.evaluation(genes.getPopulation(), actualEvaluations);
         while (actualEvaluations < Utils.config.getEvaluations() && ((System.currentTimeMillis() - initTime) / 1000) < Utils.config.getTime()) {
-
-            actualEvaluations = genes.evaluation(genes.getPopulation(), actualEvaluations);
 
             genes.selection(Utils.config.getKBest());
 

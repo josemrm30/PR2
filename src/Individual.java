@@ -1,3 +1,6 @@
+
+
+
 public class Individual {
 
     private final Integer[] gens;
@@ -5,14 +8,16 @@ public class Individual {
 
     public Individual(Integer[] gens) {
         this.gens = gens;
+
     }
 
     public Individual(Individual copy) {
         gens = new Integer[copy.gens.length];
         System.arraycopy(copy.gens, 0, this.gens, 0, copy.getGens().length);
 
-        this.fitness = 0;
+        this.fitness = copy.fitness;
     }
+
 
 
 
@@ -31,4 +36,5 @@ public class Individual {
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
+
 }
