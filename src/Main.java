@@ -11,7 +11,7 @@ public class Main {
 
     private static Logger log;
     private static LectorDatos data;
-    static ExecutorService executor = Executors.newCachedThreadPool();
+    static ExecutorService executor = Executors.newFixedThreadPool(4);
 
 
     public static void runFiles() throws IOException, InterruptedException {
