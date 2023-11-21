@@ -254,6 +254,20 @@ public class EvolutiveAlgorithm {
         }
     }
 
+    public Individual EvolutionDiferential(Individual padre1, Individual padre2){
+
+       //padre1
+       Individual rand1 = population.get(rand.nextInt(population.size()));
+       Individual rand2 = population.get(rand.nextInt(population.size()));
+
+       int corte1 = rand.nextInt(population.size()-2);
+       int corte2 = corte1 + 2;
+
+
+
+    }
+
+
     public ArrayList<Individual> getElites() {
         return elites;
     }
