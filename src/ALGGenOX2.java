@@ -3,7 +3,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class GenOX2 {
+public class ALGGenOX2 {
     private final int numElites;
     private final int numKBest;
     private int generation = 0;
@@ -15,7 +15,7 @@ public class GenOX2 {
     private ArrayList<Individual> newPopulation = new ArrayList<>();
     private int[][] cities;
 
-    public GenOX2(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
+    public ALGGenOX2(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
         numElites = elite;
         numKBest = kbest;

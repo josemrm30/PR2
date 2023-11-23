@@ -29,7 +29,7 @@ public class Metaheuristic implements Runnable {
     public void createLogger(Long seed, int elite, int kBest, int kWorst, int population) throws IOException {
         String logFile = "log/" + Utils.config.getFile() + "_" + seed + "_P=" + population + "_E=" + elite + "_kBest=" + kBest + "_kWorst=" + kWorst + ".txt";
 
-        log = Logger.getLogger(GenOX2.class.getName() + " " + logFile);
+        log = Logger.getLogger(ALGGenOX2.class.getName() + " " + logFile);
         if (Utils.config.getConsoleLog()) {
             ConsoleHandler consoleHand = new ConsoleHandler();
             log.addHandler(consoleHand);
@@ -50,7 +50,7 @@ public class Metaheuristic implements Runnable {
             throw new RuntimeException(e);
         }
         Integer actualEvaluations = 0;
-        GenOX2 genes = new GenOX2(seed, elite, kBest, log, cities);
+        ALGGenOX2 genes = new ALGGenOX2(seed, elite, kBest, log, cities);
 
         genes.initialization(population, data.getCiudades().length);
         long initTime = System.currentTimeMillis();
