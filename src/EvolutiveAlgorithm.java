@@ -13,12 +13,14 @@ public class EvolutiveAlgorithm {
     private ArrayList<Individual> elites;
     private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
+    private int[][] cities;
 
-    public EvolutiveAlgorithm(long seed, int elite, int kbest, Logger log) {
+    public EvolutiveAlgorithm(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
         numElites = elite;
         numKBest = kbest;
         this.log = log;
+        cities = citiesList;
     }
 
     public void initialization(int numIndividuals, int numGens) {
@@ -32,6 +34,7 @@ public class EvolutiveAlgorithm {
     }
 
     public void randomInitialization(int randomIndividual, int numGens) {
+        long initTime = System.currentTimeMillis();
         Integer[] initialIndividual = new Integer[numGens];
         for (int i = 0; i < numGens; i++) {
             initialIndividual[i] = i;
@@ -42,11 +45,15 @@ public class EvolutiveAlgorithm {
             Integer[] auxGen2 = auxList.toArray(new Integer[0]);
             population.add(new Individual(auxGen2));
         }
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - initTime;
+        System.out.println("Run time rand = " + diff + " milliseconds. ");
     }
 
     public void greedyInitialization(int greedyIndividual, int numGens) {
+        long initTime = System.currentTimeMillis();
         for (int i = 0; i < greedyIndividual; i++) {
-            int[][] cities = Utils.citiesByDistance(numGens);
+
             ArrayList<Integer> initialIndividual = new ArrayList<>();
             Set<Integer> marked = new HashSet<>();
 
@@ -69,6 +76,9 @@ public class EvolutiveAlgorithm {
             } while (initialIndividual.size() < numGens);
             population.add(new Individual(initialIndividual.toArray(new Integer[0])));
         }
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - initTime;
+        System.out.println("Run time = " + diff + " milliseconds. ");
     }
 
     public void elite() {

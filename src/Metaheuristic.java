@@ -14,9 +14,10 @@ public class Metaheuristic implements Runnable {
     private final int kBest;
     private final int kWorst;
     private final int population;
+    private final int[][] cities;
 
 
-    public Metaheuristic(CountDownLatch cdl, LectorDatos dat, Long seed, int elite, int kBest, int kWorst, int population) throws IOException {
+    public Metaheuristic(CountDownLatch cdl, LectorDatos dat, Long seed, int elite, int kBest, int kWorst, int population, int[][] citiesList) throws IOException {
         this.cdl = cdl;
         this.data = dat;
         this.seed = seed;
@@ -24,7 +25,7 @@ public class Metaheuristic implements Runnable {
         this.kBest = kBest;
         this.kWorst = kWorst;
         this.population = population;
-
+        this.cities = citiesList;
     }
 
     public void createLogger(Long seed, int elite, int kBest, int kWorst, int population) throws IOException {
@@ -51,7 +52,7 @@ public class Metaheuristic implements Runnable {
             throw new RuntimeException(e);
         }
         Integer actualEvaluations = 0;
-        EvolutiveAlgorithm genes = new EvolutiveAlgorithm(seed, elite, kBest, log);
+        EvolutiveAlgorithm genes = new EvolutiveAlgorithm(seed, elite, kBest, log, cities);
 
         genes.initialization(population, data.getCiudades().length);
         long initTime = System.currentTimeMillis();
@@ -70,6 +71,7 @@ public class Metaheuristic implements Runnable {
         }
         long endTime = System.currentTimeMillis();
         long diff = endTime - initTime;
+        System.out.println(log.getName());
         log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
         cdl.countDown();
         for (Handler handler : log.getHandlers()) {

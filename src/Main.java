@@ -17,11 +17,12 @@ public class Main {
     public static void runFiles() throws IOException, InterruptedException {
         int num = Utils.config.getSeeds().size() * Utils.config.getElite().size() * Utils.config.getKBest().size() * Utils.config.getPopulation().size();
         CountDownLatch cdl = new CountDownLatch(num);
+        int[][] cities = Utils.citiesByDistance(data.getCiudades().length);
         for (int i = 0; i < Utils.config.getSeeds().size(); i++) {
             for (int j = 0; j < Utils.config.getElite().size(); j++) {
                 for (int k = 0; k < Utils.config.getKBest().size(); k++) {
                     for (int l = 0; l < Utils.config.getPopulation().size(); l++) {
-                        Metaheuristic meta = new Metaheuristic(cdl, data, Utils.config.getSeeds().get(i), Utils.config.getElite().get(j), Utils.config.getKBest().get(k), Utils.config.getKWorst(), Utils.config.getPopulation().get(l));
+                        Metaheuristic meta = new Metaheuristic(cdl, data, Utils.config.getSeeds().get(i), Utils.config.getElite().get(j), Utils.config.getKBest().get(k), Utils.config.getKWorst(), Utils.config.getPopulation().get(l), cities);
                         executor.execute(meta);
                     }
                 }

@@ -25,7 +25,6 @@ public class Utils {
 
     public static int[][] citiesByDistance(int tam) {
         int[][] cities = new int[tam][tam];
-
         for (int i = 0; i < tam; i++) {
             ArrayList<Map.Entry<Integer, Double>> cityDistances = new ArrayList<>();
             for (int j = 0; j < tam; j++) {
