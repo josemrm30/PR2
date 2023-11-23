@@ -285,6 +285,7 @@ public class AlgEDA {
                     }
                 }
             }
+
             for (int j = 0; j < rand2.getGens().length; j++) {
                 if (rand2.getGens()[j] == secuencial.getGens()[corte2]) {
                     int datarand1 = rand1.getGens()[j];
