@@ -3,7 +3,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class EvolutiveAlgorithm {
+public class ALGGenOX2 {
     private final int numElites;
     private final int numKBest;
     private int generation = 0;
@@ -13,12 +13,14 @@ public class EvolutiveAlgorithm {
     private ArrayList<Individual> elites;
     private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
+    private int[][] cities;
 
-    public EvolutiveAlgorithm(long seed, int elite, int kbest, Logger log) {
+    public ALGGenOX2(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
         numElites = elite;
         numKBest = kbest;
         this.log = log;
+        cities = citiesList;
     }
 
     public void initialization(int numIndividuals, int numGens) {
@@ -46,7 +48,6 @@ public class EvolutiveAlgorithm {
 
     public void greedyInitialization(int greedyIndividual, int numGens) {
         for (int i = 0; i < greedyIndividual; i++) {
-            int[][] cities = Utils.citiesByDistance(numGens);
             ArrayList<Integer> initialIndividual = new ArrayList<>();
             Set<Integer> marked = new HashSet<>();
 
@@ -100,7 +101,7 @@ public class EvolutiveAlgorithm {
     public void selection() {
         generation++;
 
-        if (generation < 3 || generation % 50 == 0) {
+        if (generation < 3 || generation % 100 == 0) {
             StringBuilder msg = new StringBuilder();
             for (Individual individual : population) {
                 msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
@@ -252,10 +253,6 @@ public class EvolutiveAlgorithm {
                 }
             }
         }
-    }
-
-    public ArrayList<Individual> getElites() {
-        return elites;
     }
 }
 
