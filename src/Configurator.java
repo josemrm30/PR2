@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 public class Configurator {
     private String file = "";
-    private ArrayList<Long> seeds = new ArrayList<>();
-    private ArrayList<Integer> population = new ArrayList<>();
+    private final ArrayList<Long> seeds = new ArrayList<>();
+    private final ArrayList<Integer> population = new ArrayList<>();
     private int greedyRandomSize;
-    private ArrayList<Integer> elite = new ArrayList<>();
-    private ArrayList<Integer> kBest = new ArrayList<>();
+    private final ArrayList<Integer> elite = new ArrayList<>();
+    private final ArrayList<Integer> kBest = new ArrayList<>();
     private int kWorst;
     private double crossProb;
     private double mutationProb;

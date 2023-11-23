@@ -4,12 +4,8 @@ import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
 
 public class Main {
-
-    private static Logger log;
     private static LectorDatos data;
     static ExecutorService executor = Executors.newFixedThreadPool(6);
 
