@@ -254,17 +254,123 @@ public class EvolutiveAlgorithm {
         }
     }
 
-    public Individual EvolutionDiferential(Individual padre1, Individual padre2){
+    public void EvolutionDiferentialA() {
 
-       //padre1
-       Individual rand1 = population.get(rand.nextInt(population.size()));
-       Individual rand2 = population.get(rand.nextInt(population.size()));
+        for (int i = 0; i < population.size(); i++) {
+            Individual rand1 = population.get(rand.nextInt(population.size()));
+            Individual rand2 = population.get(rand.nextInt(population.size()));
+            Individual secuencial = population.get(i);
+            int corte1 = rand.nextInt(population.size() - 2);
+            int corte2 = corte1 + 1;
+            for (int j = 0; j < rand1.getGens().length; j++) {
+                if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {
+                    int datosecuencial = secuencial.getGens()[j];
+                    for (int k = 0; k < secuencial.getGens().length; k++) {
+                        if (datosecuencial == secuencial.getGens()[k]) {
+                            int aux = rand1.getGens()[j];
+                            rand1.getGens()[j] = rand1.getGens()[k];
+                            rand1.getGens()[k] = aux;
+                        }
+                    }
+                }
+            }
+            for (int j = 0; j < rand2.getGens().length; j++) {
+                if (rand2.getGens()[j] == secuencial.getGens()[corte2]) {
+                    int datarand1 = rand1.getGens()[j];
+                    for (int k = 0; k < rand1.getGens().length; k++) {
+                        if (datarand1 == rand1.getGens()[k]) {
+                            int aux = rand1.getGens()[j];
+                            rand1.getGens()[j] = rand1.getGens()[k];
+                            rand1.getGens()[k] = aux;
+                        }
+                    }
+                }
+            }
+            //el resultado esta en rand1
 
-       int corte1 = rand.nextInt(population.size()-2);
-       int corte2 = corte1 + 2;
+            Individual randtour1 = population.get(rand.nextInt(population.size()));
+            Individual randtour2 = population.get(rand.nextInt(population.size()));
+            Individual objetive;
+            if (randtour1.getFitness() < randtour2.getFitness()) {
+                objetive = new Individual(randtour1);
+            } else {
+                objetive = new Individual(randtour2);
+            }
+
+            Individual son = OX2Child(objetive, rand1);
+
+            if (son.getFitness() < secuencial.getFitness()) {
+                secuencial = son;
+            }
+
+        }
+    }
 
 
+    public void EvolutionDiferentialB() {
+        for (int i = 0; i < population.size(); i++) {
+            Individual secuencial = population.get(i);
 
+            ArrayList<Individual> selected = new ArrayList<>();
+            int countindividual = 0;
+            while(countindividual < 3) {
+                    Individual randtour1 = population.get(rand.nextInt(population.size()));
+                    Individual randtour2 = population.get(rand.nextInt(population.size()));
+                    Individual best = randtour1;
+                    if (randtour1.getFitness() < randtour2.getFitness()) {
+                        best = randtour1;
+                    } else if (randtour2.getFitness() < randtour1.getFitness()) {
+                        best = randtour2;
+                    }
+                    int iguales = 0;
+                    for (int j = 0; j < selected.size(); j++) {
+                        if(best == selected.get(i)){
+                            iguales++;
+                            break;
+                        }
+                    }
+                    if(iguales == 0){
+                        selected.add(best);
+                        countindividual++;
+                    }
+            }
+            Individual rand1 = new Individual(selected.get(0));
+            Individual rand2 = new Individual(selected.get(1));
+            int corte1 = rand.nextInt(population.size() - 2);
+            int corte2 = corte1 + 1;
+            for (int j = 0; j < rand1.getGens().length; j++) {
+                if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {
+                    int datosecuencial = secuencial.getGens()[j];
+                    for (int k = 0; k < secuencial.getGens().length; k++) {
+                        if (datosecuencial == secuencial.getGens()[k]) {
+                            int aux = rand1.getGens()[j];
+                            rand1.getGens()[j] = rand1.getGens()[k];
+                            rand1.getGens()[k] = aux;
+                        }
+                    }
+                }
+            }
+            for (int j = 0; j < rand2.getGens().length; j++) {
+                if (rand2.getGens()[j] == secuencial.getGens()[corte2]) {
+                    int datarand1 = rand1.getGens()[j];
+                    for (int k = 0; k < rand1.getGens().length; k++) {
+                        if (datarand1 == rand1.getGens()[k]) {
+                            int aux = rand1.getGens()[j];
+                            rand1.getGens()[j] = rand1.getGens()[k];
+                            rand1.getGens()[k] = aux;
+                        }
+                    }
+                }
+            }
+            //el resultado esta en rand1
+
+            Individual objetive = new Individual(selected.get(2));
+            Individual son = OX2Child(objetive, rand1);
+
+            if (son.getFitness() < secuencial.getFitness()) {
+                secuencial = son;
+            }
+        }
     }
 
 
