@@ -217,8 +217,11 @@ public class AlgEDA {
     }
 
     public void replacement() {
-        worstTournament();
-        population = newPopulation;
+        for (int i = 0; i < population.size(); i++) {
+            if(newPopulation.get(i).getFitness() < population.get(i).getFitness()){
+                population.set(i,newPopulation.get(i));
+            }
+        }
         newPopulation = new ArrayList<>();
     }
 
@@ -311,12 +314,7 @@ public class AlgEDA {
             } else {
                 objetive = new Individual(randtour2);
             }
-
-
-            Individual son = OX2Child(objetive, rand1);
-
-
-
+            newPopulation.add(OX2Child(objetive, rand1));
         }
     }
 }

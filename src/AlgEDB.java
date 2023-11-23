@@ -217,8 +217,11 @@ public class AlgEDB {
     }
 
     public void replacement() {
-        worstTournament();
-        population = newPopulation;
+        for (int i = 0; i < population.size(); i++) {
+            if(newPopulation.get(i).getFitness() < population.get(i).getFitness()){
+                population.set(i,newPopulation.get(i));
+            }
+        }
         newPopulation = new ArrayList<>();
     }
 
@@ -321,11 +324,7 @@ public class AlgEDB {
             //el resultado esta en rand1
 
             Individual objetive = new Individual(selected.get(2));
-            Individual son = OX2Child(objetive, rand1);
-
-            if (son.getFitness() < secuencial.getFitness()) {
-                secuencial = son;
-            }
+            newPopulation.add(OX2Child(objetive, rand1));
         }
     }
 }
