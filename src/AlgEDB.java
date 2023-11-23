@@ -256,14 +256,22 @@ public class AlgEDB {
     }
 
     public void EvolutionDiferentialB() {
-        for (int i = 0; i < population.size(); i++) {
-            Individual secuencial = population.get(i);
+        for (int i = 0; i < newPopulation.size(); i++) {
+            Individual secuencial = newPopulation.get(i);
 
             ArrayList<Individual> selected = new ArrayList<>();
             int countindividual = 0;
             while (countindividual < 3) {
-                Individual randtour1 = population.get(rand.nextInt(population.size()));
-                Individual randtour2 = population.get(rand.nextInt(population.size()));
+
+                Individual randtour1;
+                Individual randtour2;
+                do{
+                    randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
+                }while(randtour1 == secuencial);
+                do{
+                    randtour2 = newPopulation.get(rand.nextInt(newPopulation.size()));
+                }while(randtour2 == randtour1 || randtour2 == secuencial);
+
                 Individual best = randtour1;
                 if (randtour1.getFitness() < randtour2.getFitness()) {
                     best = randtour1;
@@ -284,7 +292,7 @@ public class AlgEDB {
             }
             Individual rand1 = new Individual(selected.get(0));
             Individual rand2 = new Individual(selected.get(1));
-            int corte1 = rand.nextInt(population.size() - 2);
+            int corte1 = rand.nextInt(newPopulation.size() - 2);
             int corte2 = corte1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
                 if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {

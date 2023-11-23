@@ -257,11 +257,18 @@ public class AlgEDA {
 
     public void EvolutionDiferentialA() {
 
-        for (int i = 0; i < population.size(); i++) {
-            Individual rand1 = population.get(rand.nextInt(population.size()));
-            Individual rand2 = population.get(rand.nextInt(population.size()));
-            Individual secuencial = population.get(i);
-            int corte1 = rand.nextInt(population.size() - 2);
+        for (int i = 0; i < newPopulation.size(); i++) {
+            Individual secuencial = newPopulation.get(i);
+            Individual rand1;
+            Individual rand2;
+            do{
+                rand1 = newPopulation.get(rand.nextInt(newPopulation.size()));
+            }while(secuencial == rand1);
+            do{
+                rand2 = newPopulation.get(rand.nextInt(newPopulation.size()));
+            }while(rand2 == secuencial || rand2 == rand1);
+
+            int corte1 = rand.nextInt(newPopulation.size() - 2);
             int corte2 = corte1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
                 if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {
@@ -289,8 +296,15 @@ public class AlgEDA {
             }
             //el resultado esta en rand1
 
-            Individual randtour1 = population.get(rand.nextInt(population.size()));
-            Individual randtour2 = population.get(rand.nextInt(population.size()));
+            Individual randtour1;
+            Individual randtour2;
+            do{
+                randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
+            }while(randtour1 == secuencial || randtour1 == rand1 || randtour1 == rand2);
+            do {
+                randtour2 = newPopulation.get(rand.nextInt(newPopulation.size()));
+            }while(randtour2 == randtour1 || randtour2 == secuencial || randtour2 == rand1 || randtour2 == rand2);
+
             Individual objetive;
             if (randtour1.getFitness() < randtour2.getFitness()) {
                 objetive = new Individual(randtour1);
@@ -298,11 +312,10 @@ public class AlgEDA {
                 objetive = new Individual(randtour2);
             }
 
+
             Individual son = OX2Child(objetive, rand1);
 
-            if (son.getFitness() < secuencial.getFitness()) {
-                secuencial = son;
-            }
+
 
         }
     }
