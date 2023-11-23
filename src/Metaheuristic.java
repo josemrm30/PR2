@@ -71,7 +71,6 @@ public class Metaheuristic implements Runnable {
         }
         long endTime = System.currentTimeMillis();
         long diff = endTime - initTime;
-        System.out.println(log.getName());
         log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
         cdl.countDown();
         for (Handler handler : log.getHandlers()) {

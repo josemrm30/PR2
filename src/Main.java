@@ -39,6 +39,7 @@ public class Main {
         if (!Files.isDirectory(dir)) {
             Files.createDirectory(dir);
         }
+
         runFiles();
         executor.shutdown();
     }
