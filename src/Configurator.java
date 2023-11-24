@@ -2,9 +2,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Configurator {
-    private String file = "";
+    private String file;
+    private final ArrayList<String> algorithms = new ArrayList<>();
     private final ArrayList<Long> seeds = new ArrayList<>();
     private final ArrayList<Integer> population = new ArrayList<>();
     private int greedyRandomSize;
@@ -18,6 +20,9 @@ public class Configurator {
     private Boolean consoleLog;
     private double randomRate;
     private double greedyRate;
+    private int edPopulation;
+    private int edKBest;
+    private int threads;
 
     public Configurator(String path) throws IOException {
         String line;
@@ -28,6 +33,10 @@ public class Configurator {
         while ((line = b.readLine()) != null) {
             String[] splited = line.split("=");
             switch (splited[0]) {
+                case "Algorithm":
+                    String[] vAlgorithms = splited[1].split(" ");
+                    Collections.addAll(algorithms, vAlgorithms);
+                    break;
                 case "Files":
                     file = splited[1];
                     break;
@@ -82,6 +91,15 @@ public class Configurator {
                 case "GreedyRate":
                     greedyRate = Double.parseDouble(splited[1]);
                     break;
+                case "EDPopulation":
+                    edPopulation = Integer.parseInt(splited[1]);
+                    break;
+                case "EDKBest":
+                    edKBest = Integer.parseInt(splited[1]);
+                    break;
+                case "Threads":
+                    threads = Integer.parseInt(splited[1]);
+                    break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + splited[0]);
             }
@@ -92,13 +110,16 @@ public class Configurator {
         return file;
     }
 
-
     public ArrayList<Long> getSeeds() {
         return seeds;
     }
 
     public ArrayList<Integer> getPopulation() {
         return population;
+    }
+
+    public ArrayList<String> getAlgorithms() {
+        return algorithms;
     }
 
     public int getGreedyRandomSize() {
@@ -143,5 +164,17 @@ public class Configurator {
 
     public double getGreedyRate() {
         return greedyRate;
+    }
+
+    public int getEdPopulation() {
+        return edPopulation;
+    }
+
+    public int getEdKBest() {
+        return edKBest;
+    }
+
+    public int getThreads() {
+        return threads;
     }
 }

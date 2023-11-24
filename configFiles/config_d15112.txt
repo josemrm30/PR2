@@ -1,3 +1,4 @@
+Algorithm=GenOX2 EDA EDB
 Files=d15112.tsp
 Seeds=26512592 51262592 26255192 92512526 25265192
 ConsoleLog=False
@@ -12,3 +13,6 @@ Evaluations=50000
 Time=60
 RandomRate=0.8
 GreedyRate=0.2
+EDPopulation=100
+EDKBest=2
+Threads=6

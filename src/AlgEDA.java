@@ -4,21 +4,17 @@ import java.util.logging.Logger;
 
 
 public class AlgEDA {
-    private final int numElites;
-    private final int numKBest;
     private int generation = 0;
-    private ArrayList<Individual> population = new ArrayList<>();
+    private final ArrayList<Individual> population = new ArrayList<>();
     private final Random rand;
     private final Logger log;
-    private ArrayList<Individual> elites;
-    private ArrayList<Individual> worsts;
+    private final int numKBest;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
-    private int[][] cities;
+    private final int[][] cities;
 
-    public AlgEDA(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
+    public AlgEDA(long seed, int kBest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
-        numElites = elite;
-        numKBest = kbest;
+        numKBest = kBest;
         this.log = log;
         cities = citiesList;
     }
@@ -72,90 +68,6 @@ public class AlgEDA {
         }
     }
 
-    public void elite() {
-        elites = new ArrayList<>();
-        ArrayList<Double> maxFitness = new ArrayList<>();
-        for (int i = 0; i < numElites; i++) {
-            maxFitness.add(Double.MAX_VALUE);
-        }
-        for (int i = 0; i < numElites; i++) {
-            for (Individual individual : population) {
-                if (individual.getFitness() < maxFitness.get(i) && !elites.contains(individual)) {
-                    maxFitness.set(i, individual.getFitness());
-                    if (elites.size() == i) {
-                        elites.add(individual);
-                    } else {
-                        elites.set(i, individual);
-                    }
-                }
-            }
-        }
-        StringBuilder msg = new StringBuilder();
-        for (int i = 0; i < elites.size(); i++) {
-            msg.append(" Fitness = ").append(elites.get(i).getFitness()).append(" Elite ").append(i).append(" ").append(Arrays.deepToString(elites.get(i).getGens())).append("\n");
-        }
-        log.log(Level.INFO, "Generation " + generation);
-        log.log(Level.INFO, msg.toString());
-    }
-
-    public void selection() {
-        generation++;
-
-        if (generation < 3 || generation % 100 == 0) {
-            StringBuilder msg = new StringBuilder();
-            for (Individual individual : population) {
-                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
-            }
-            log.log(Level.INFO, "Generation " + generation);
-            log.log(Level.INFO, msg.toString());
-
-        }
-        elite();
-
-        for (int i = 0; i < population.size(); i++) {
-            int[] randomPositions = new int[numKBest];
-
-            for (int j = 0; j < numKBest; j++) {
-                randomPositions[j] = rand.nextInt(population.size());
-            }
-            Individual selected = null;
-            double selectedFitness = Double.MAX_VALUE;
-
-            for (int randomPosition : randomPositions) {
-                if (population.get(randomPosition).getFitness() < selectedFitness) {
-                    selected = population.get(randomPosition);
-                    selectedFitness = selected.getFitness();
-                }
-            }
-            newPopulation.add(selected);
-        }
-    }
-
-
-    public void cross() {
-        ArrayList<Individual> auxPopulation = new ArrayList<>();
-        for (int i = 0; i < newPopulation.size() / 2; i++) {
-            ArrayList<Individual> children = new ArrayList<>();
-            int pos1 = rand.nextInt(newPopulation.size());
-            int pos2 = rand.nextInt(newPopulation.size());
-            double random = rand.nextDouble(1);
-            children.add(newPopulation.get(pos1));
-            children.add(newPopulation.get(pos2));
-            if (random < Utils.config.getCrossProb()) {
-                children = crossOX2(children.get(0), children.get(1));
-            }
-            auxPopulation.addAll(children);
-        }
-        newPopulation = auxPopulation;
-    }
-
-    public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
-        ArrayList<Individual> children = new ArrayList<>();
-        children.add(OX2Child(parent1, parent2));
-        children.add(OX2Child(parent2, parent1));
-        return children;
-    }
-
     public Individual OX2Child(Individual parent1, Individual parent2) {
         ArrayList<Integer> contained = new ArrayList<>();
         Individual child = new Individual(parent2);
@@ -173,20 +85,6 @@ public class AlgEDA {
             }
         }
         return child;
-    }
-
-    public void mutation() {
-        for (Individual individual : newPopulation) {
-            double probMutation = rand.nextDouble(1);
-            if (probMutation < Utils.config.getMutationProb()) {
-                int pos1 = rand.nextInt(individual.getGens().length);
-                int pos2 = rand.nextInt(individual.getGens().length);
-                Utils.swap(individual.getGens(), pos1, pos2);
-                int aux = individual.getGens()[pos1];
-                individual.setGen(pos1, individual.getGens()[pos2]);
-                individual.setGen(pos2, aux);
-            }
-        }
     }
 
     public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
@@ -225,59 +123,57 @@ public class AlgEDA {
         newPopulation = new ArrayList<>();
     }
 
-    public void worstTournament() {
-        int kWorst = Utils.config.getKWorst();
-        for (Individual elite : elites) {
-            if (!newPopulation.contains(elite)) {
-                worst(kWorst);
-                int randomPosition = rand.nextInt(kWorst);
-                Individual aux = worsts.get(randomPosition);
-                int position = newPopulation.indexOf(aux);
-                newPopulation.set(position, elite);
+    public void selectionRecombination() {
+        generation++;
+
+        if (generation < 3 || generation % 100 == 0) {
+            StringBuilder msg = new StringBuilder();
+            for (Individual individual : population) {
+                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
             }
+            log.log(Level.INFO, "Generation " + generation);
+            log.log(Level.INFO, msg.toString());
         }
-    }
 
-    public void worst(int kWorst) {
-        worsts = new ArrayList<>();
-        ArrayList<Double> minFitness = new ArrayList<>();
-        for (int i = 0; i < kWorst; i++) {
-            minFitness.add(Double.MIN_VALUE);
-        }
-        for (int i = 0; i < kWorst; i++) {
-            for (Individual individual : newPopulation) {
-                if (individual.getFitness() > minFitness.get(i) && !worsts.contains(individual)) {
-                    minFitness.set(i, individual.getFitness());
-                    if (worsts.size() == i) {
-                        worsts.add(individual);
-                    } else {
-                        worsts.set(i, individual);
-                    }
-                }
-            }
-        }
-    }
-
-    public void EvolutionDiferentialA() {
-
-        for (int i = 0; i < newPopulation.size(); i++) {
-            Individual secuencial = newPopulation.get(i);
+        for (int i = 0; i < population.size(); i++) {
+            Individual parent = population.get(i);
             Individual rand1;
             Individual rand2;
-            do{
-                rand1 = newPopulation.get(rand.nextInt(newPopulation.size()));
-            }while(secuencial == rand1);
-            do{
-                rand2 = newPopulation.get(rand.nextInt(newPopulation.size()));
-            }while(rand2 == secuencial || rand2 == rand1);
+            Individual objetive;
+            Set<Individual> selectionList = new HashSet<>();
+            selectionList.add(parent);
 
-            int corte1 = rand.nextInt(newPopulation.size() - 2);
-            int corte2 = corte1 + 1;
+            do{
+                rand1 = population.get(rand.nextInt(population.size()));
+            }while(!selectionList.add(rand1));
+            do{
+                rand2 = population.get(rand.nextInt(population.size()));
+            }while(!selectionList.add(rand2));
+
+            Set<Individual> randomTournament = new HashSet<>();
+            Individual random;
+            do {
+                random = population.get(rand.nextInt(population.size()));
+                if (!selectionList.contains(random)){
+                    randomTournament.add(random);
+                }
+            }while(randomTournament.size() == Utils.config.getEdKBest());
+            Iterator<Individual> it = randomTournament.iterator();
+            Individual iteration = it.next();
+            while(it.hasNext()){
+                if (iteration.getFitness() < objetive.getFitness()) {
+                    objetive = iteration;
+                }
+                it.next();
+            }
+//eso va a fallar porque objetive no está inicializado
+            int cut1 = rand.nextInt(population.size() - 2);
+            int cut2 = cut1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
-                if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {
-                    int datosecuencial = secuencial.getGens()[j];
-                    for (int k = 0; k < secuencial.getGens().length; k++) {
-                        if (datosecuencial == secuencial.getGens()[k]) {
+                if (rand1.getGens()[j] == parent.getGens()[cut1]) {
+                    int datosecuencial = parent.getGens()[j];
+                    for (int k = 0; k < parent.getGens().length; k++) {
+                        if (datosecuencial == parent.getGens()[k]) {
                             int aux = rand1.getGens()[j];
                             rand1.getGens()[j] = rand1.getGens()[k];
                             rand1.getGens()[k] = aux;
@@ -287,7 +183,7 @@ public class AlgEDA {
             }
 
             for (int j = 0; j < rand2.getGens().length; j++) {
-                if (rand2.getGens()[j] == secuencial.getGens()[corte2]) {
+                if (rand2.getGens()[j] == parent.getGens()[cut2]) {
                     int datarand1 = rand1.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (datarand1 == rand1.getGens()[k]) {
@@ -300,21 +196,19 @@ public class AlgEDA {
             }
             //el resultado esta en rand1
 
+
             Individual randtour1;
             Individual randtour2;
-            do{
-                randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
-            }while(randtour1 == secuencial || randtour1 == rand1 || randtour1 == rand2);
-            do {
-                randtour2 = newPopulation.get(rand.nextInt(newPopulation.size()));
-            }while(randtour2 == randtour1 || randtour2 == secuencial || randtour2 == rand1 || randtour2 == rand2);
+            int i= 0;
 
-            Individual objetive;
-            if (randtour1.getFitness() < randtour2.getFitness()) {
-                objetive = new Individual(randtour1);
-            } else {
-                objetive = new Individual(randtour2);
-            }
+            selectionList.add(rand1);
+            //randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
+
+
+            do {
+                randtour2 = population.get(rand.nextInt(population.size()));
+            }while(selectionList.add(randtour2));
+
             newPopulation.add(OX2Child(objetive, rand1));
         }
     }

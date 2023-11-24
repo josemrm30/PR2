@@ -8,20 +8,32 @@ public class Metaheuristic implements Runnable {
     private final CountDownLatch cdl;
     private final LectorDatos data;
     private final Long seed;
-    private final int elite;
+    private int elite;
     private final int kBest;
-    private final int kWorst;
+    private int kWorst;
     private final int population;
     private final int[][] cities;
+    private final String alg;
 
 
-    public Metaheuristic(CountDownLatch cdl, LectorDatos dat, Long seed, int elite, int kBest, int kWorst, int population, int[][] citiesList) throws IOException {
+    public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int elite, int kBest, int kWorst, int population, int[][] citiesList) throws IOException {
+        this.alg = algorithm;
         this.cdl = cdl;
         this.data = dat;
         this.seed = seed;
         this.elite = elite;
         this.kBest = kBest;
         this.kWorst = kWorst;
+        this.population = population;
+        this.cities = citiesList;
+    }
+
+    public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int kBest, int population, int[][] citiesList) throws IOException {
+        this.alg = algorithm;
+        this.cdl = cdl;
+        this.data = dat;
+        this.seed = seed;
+        this.kBest = kBest;
         this.population = population;
         this.cities = citiesList;
     }
@@ -50,26 +62,69 @@ public class Metaheuristic implements Runnable {
             throw new RuntimeException(e);
         }
         Integer actualEvaluations = 0;
-        ALGGenOX2 genes = new ALGGenOX2(seed, elite, kBest, log, cities);
+        long initTime;
+        long endTime;
+        long diff;
 
-        genes.initialization(population, data.getCiudades().length);
-        long initTime = System.currentTimeMillis();
-        actualEvaluations = genes.evaluation(genes.getPopulation(), actualEvaluations);
-        while (actualEvaluations < Utils.config.getEvaluations() && ((System.currentTimeMillis() - initTime) / 1000) < Utils.config.getTime()) {
 
-            genes.selection();
 
-            genes.cross();
+        switch(alg) {
+            case "GenOX2":
+                ALGGenOX2 genes = new ALGGenOX2(seed, elite, kBest, log, cities);
+                genes.initialization(population, data.getCiudades().length);
+                initTime = System.currentTimeMillis();
+                actualEvaluations = genes.evaluation(genes.getPopulation(), actualEvaluations);
+                while (actualEvaluations < Utils.config.getEvaluations() && ((System.currentTimeMillis() - initTime) / 1000) < Utils.config.getTime()) {
+                    genes.selection();
 
-            genes.mutation();
+                    genes.cross();
 
-            actualEvaluations = genes.evaluation(genes.getNewPopulation(), actualEvaluations);
+                    genes.mutation();
 
-            genes.replacement();
+                    actualEvaluations = genes.evaluation(genes.getNewPopulation(), actualEvaluations);
+
+                    genes.replacement();
+                }
+                endTime = System.currentTimeMillis();
+                diff = endTime - initTime;
+                log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
+                break;
+            case "EDA":
+                AlgEDA genesEDA = new AlgEDA(seed, kBest, log, cities);
+                genesEDA.initialization(population, data.getCiudades().length);
+                initTime = System.currentTimeMillis();
+                actualEvaluations = genesEDA.evaluation(genesEDA.getPopulation(), actualEvaluations);
+                while (actualEvaluations < Utils.config.getEvaluations() && ((System.currentTimeMillis() - initTime) / 1000) < Utils.config.getTime()) {
+                    genesEDA.selectionRecombination();
+
+                    actualEvaluations = genesEDA.evaluation(genesEDA.getNewPopulation(), actualEvaluations);
+
+                    genesEDA.replacement();
+                }
+                endTime = System.currentTimeMillis();
+                diff = endTime - initTime;
+                log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
+                break;
+            case "EDB":
+                AlgEDB genesEDB = new AlgEDB(seed, kBest, log, cities);
+                genesEDB.initialization(population, data.getCiudades().length);
+                initTime = System.currentTimeMillis();
+                actualEvaluations = genesEDB.evaluation(genesEDB.getPopulation(), actualEvaluations);
+                while (actualEvaluations < Utils.config.getEvaluations() && ((System.currentTimeMillis() - initTime) / 1000) < Utils.config.getTime()) {
+                    genesEDB.selectionRecombination();
+
+                    actualEvaluations = genesEDB.evaluation(genesEDB.getNewPopulation(), actualEvaluations);
+
+                    genesEDB.replacement();
+                }
+                endTime = System.currentTimeMillis();
+                diff = endTime - initTime;
+                log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
+                break;
         }
-        long endTime = System.currentTimeMillis();
-        long diff = endTime - initTime;
-        log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
+
+
+
         cdl.countDown();
         for (Handler handler : log.getHandlers()) {
             handler.close();

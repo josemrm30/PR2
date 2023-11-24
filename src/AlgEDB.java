@@ -4,21 +4,17 @@ import java.util.logging.Logger;
 
 
 public class AlgEDB {
-    private final int numElites;
     private final int numKBest;
     private int generation = 0;
-    private ArrayList<Individual> population = new ArrayList<>();
+    private final ArrayList<Individual> population = new ArrayList<>();
     private final Random rand;
     private final Logger log;
-    private ArrayList<Individual> elites;
-    private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
-    private int[][] cities;
+    private final int[][] cities;
 
-    public AlgEDB(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
+    public AlgEDB(long seed, int kBest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
-        numElites = elite;
-        numKBest = kbest;
+        numKBest = kBest;
         this.log = log;
         cities = citiesList;
     }
@@ -72,90 +68,6 @@ public class AlgEDB {
         }
     }
 
-    public void elite() {
-        elites = new ArrayList<>();
-        ArrayList<Double> maxFitness = new ArrayList<>();
-        for (int i = 0; i < numElites; i++) {
-            maxFitness.add(Double.MAX_VALUE);
-        }
-        for (int i = 0; i < numElites; i++) {
-            for (Individual individual : population) {
-                if (individual.getFitness() < maxFitness.get(i) && !elites.contains(individual)) {
-                    maxFitness.set(i, individual.getFitness());
-                    if (elites.size() == i) {
-                        elites.add(individual);
-                    } else {
-                        elites.set(i, individual);
-                    }
-                }
-            }
-        }
-        StringBuilder msg = new StringBuilder();
-        for (int i = 0; i < elites.size(); i++) {
-            msg.append(" Fitness = ").append(elites.get(i).getFitness()).append(" Elite ").append(i).append(" ").append(Arrays.deepToString(elites.get(i).getGens())).append("\n");
-        }
-        log.log(Level.INFO, "Generation " + generation);
-        log.log(Level.INFO, msg.toString());
-    }
-
-    public void selection() {
-        generation++;
-
-        if (generation < 3 || generation % 100 == 0) {
-            StringBuilder msg = new StringBuilder();
-            for (Individual individual : population) {
-                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
-            }
-            log.log(Level.INFO, "Generation " + generation);
-            log.log(Level.INFO, msg.toString());
-
-        }
-        elite();
-
-        for (int i = 0; i < population.size(); i++) {
-            int[] randomPositions = new int[numKBest];
-
-            for (int j = 0; j < numKBest; j++) {
-                randomPositions[j] = rand.nextInt(population.size());
-            }
-            Individual selected = null;
-            double selectedFitness = Double.MAX_VALUE;
-
-            for (int randomPosition : randomPositions) {
-                if (population.get(randomPosition).getFitness() < selectedFitness) {
-                    selected = population.get(randomPosition);
-                    selectedFitness = selected.getFitness();
-                }
-            }
-            newPopulation.add(selected);
-        }
-    }
-
-
-    public void cross() {
-        ArrayList<Individual> auxPopulation = new ArrayList<>();
-        for (int i = 0; i < newPopulation.size() / 2; i++) {
-            ArrayList<Individual> children = new ArrayList<>();
-            int pos1 = rand.nextInt(newPopulation.size());
-            int pos2 = rand.nextInt(newPopulation.size());
-            double random = rand.nextDouble(1);
-            children.add(newPopulation.get(pos1));
-            children.add(newPopulation.get(pos2));
-            if (random < Utils.config.getCrossProb()) {
-                children = crossOX2(children.get(0), children.get(1));
-            }
-            auxPopulation.addAll(children);
-        }
-        newPopulation = auxPopulation;
-    }
-
-    public ArrayList<Individual> crossOX2(Individual parent1, Individual parent2) {
-        ArrayList<Individual> children = new ArrayList<>();
-        children.add(OX2Child(parent1, parent2));
-        children.add(OX2Child(parent2, parent1));
-        return children;
-    }
-
     public Individual OX2Child(Individual parent1, Individual parent2) {
         ArrayList<Integer> contained = new ArrayList<>();
         Individual child = new Individual(parent2);
@@ -173,20 +85,6 @@ public class AlgEDB {
             }
         }
         return child;
-    }
-
-    public void mutation() {
-        for (Individual individual : newPopulation) {
-            double probMutation = rand.nextDouble(1);
-            if (probMutation < Utils.config.getMutationProb()) {
-                int pos1 = rand.nextInt(individual.getGens().length);
-                int pos2 = rand.nextInt(individual.getGens().length);
-                Utils.swap(individual.getGens(), pos1, pos2);
-                int aux = individual.getGens()[pos1];
-                individual.setGen(pos1, individual.getGens()[pos2]);
-                individual.setGen(pos2, aux);
-            }
-        }
     }
 
     public Integer evaluation(ArrayList<Individual> popu, Integer actualEvaluations) {
@@ -225,40 +123,17 @@ public class AlgEDB {
         newPopulation = new ArrayList<>();
     }
 
-    public void worstTournament() {
-        int kWorst = Utils.config.getKWorst();
-        for (Individual elite : elites) {
-            if (!newPopulation.contains(elite)) {
-                worst(kWorst);
-                int randomPosition = rand.nextInt(kWorst);
-                Individual aux = worsts.get(randomPosition);
-                int position = newPopulation.indexOf(aux);
-                newPopulation.set(position, elite);
-            }
-        }
-    }
+    public void selectionRecombination() {
 
-    public void worst(int kWorst) {
-        worsts = new ArrayList<>();
-        ArrayList<Double> minFitness = new ArrayList<>();
-        for (int i = 0; i < kWorst; i++) {
-            minFitness.add(Double.MIN_VALUE);
-        }
-        for (int i = 0; i < kWorst; i++) {
-            for (Individual individual : newPopulation) {
-                if (individual.getFitness() > minFitness.get(i) && !worsts.contains(individual)) {
-                    minFitness.set(i, individual.getFitness());
-                    if (worsts.size() == i) {
-                        worsts.add(individual);
-                    } else {
-                        worsts.set(i, individual);
-                    }
-                }
+        if (generation < 3 || generation % 100 == 0) {
+            StringBuilder msg = new StringBuilder();
+            for (Individual individual : population) {
+                msg.append(" Fitness = ").append(individual.getFitness()).append(" ").append(Arrays.deepToString(individual.getGens())).append("\n");
             }
-        }
-    }
+            log.log(Level.INFO, "Generation " + generation);
+            log.log(Level.INFO, msg.toString());
 
-    public void EvolutionDiferentialB() {
+        }
         for (int i = 0; i < newPopulation.size(); i++) {
             Individual secuencial = newPopulation.get(i);
 
