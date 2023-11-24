@@ -157,7 +157,7 @@ public class AlgEDA {
                 if (!selectionList.contains(random)){
                     randomTournament.add(random);
                 }
-            }while(randomTournament.size() == Utils.config.getEdKBest());
+            }while(randomTournament.size() != Utils.config.getEdKBest());
             Iterator<Individual> it = randomTournament.iterator();
             Individual iteration = it.next();
             while(it.hasNext()){

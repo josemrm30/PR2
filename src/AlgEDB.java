@@ -135,8 +135,10 @@ public class AlgEDB {
 
         }
         for (int i = 0; i < newPopulation.size(); i++) {
-            Individual secuencial = newPopulation.get(i);
+            Individual parent = newPopulation.get(i);
 
+            Set<Individual> selectionList = new HashSet<>();
+            selectionList.add(parent);
             ArrayList<Individual> selected = new ArrayList<>();
             int countindividual = 0;
             while (countindividual < 3) {
@@ -145,16 +147,20 @@ public class AlgEDB {
                 Individual randtour2;
                 do{
                     randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
-                }while(randtour1 == secuencial);
+                }while(!selectionList.add(randtour1));
                 do{
                     randtour2 = newPopulation.get(rand.nextInt(newPopulation.size()));
-                }while(randtour2 == randtour1 || randtour2 == secuencial);
+                }while(!selectionList.add(randtour2));
 
                 Individual best = randtour1;
-                if (randtour1.getFitness() < randtour2.getFitness()) {
-                    best = randtour1;
-                } else if (randtour2.getFitness() < randtour1.getFitness()) {
-                    best = randtour2;
+
+                Iterator <Individual> it = selectionList.iterator();
+                Individual iteration = it.next();
+                while(it.hasNext()){
+                    if (iteration.getFitness() < best.getFitness()) {
+                        best = iteration;
+                    }
+                    it.next();
                 }
                 int iguales = 0;
                 for (int j = 0; j < selected.size(); j++) {
@@ -173,10 +179,10 @@ public class AlgEDB {
             int corte1 = rand.nextInt(newPopulation.size() - 2);
             int corte2 = corte1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
-                if (rand1.getGens()[j] == secuencial.getGens()[corte1]) {
-                    int datosecuencial = secuencial.getGens()[j];
-                    for (int k = 0; k < secuencial.getGens().length; k++) {
-                        if (datosecuencial == secuencial.getGens()[k]) {
+                if (rand1.getGens()[j] == parent.getGens()[corte1]) {
+                    int datosecuencial = parent.getGens()[j];
+                    for (int k = 0; k < parent.getGens().length; k++) {
+                        if (datosecuencial == parent.getGens()[k]) {
                             int aux = rand1.getGens()[j];
                             rand1.getGens()[j] = rand1.getGens()[k];
                             rand1.getGens()[k] = aux;
@@ -185,7 +191,7 @@ public class AlgEDB {
                 }
             }
             for (int j = 0; j < rand2.getGens().length; j++) {
-                if (rand2.getGens()[j] == secuencial.getGens()[corte2]) {
+                if (rand2.getGens()[j] == parent.getGens()[corte2]) {
                     int datarand1 = rand1.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (datarand1 == rand1.getGens()[k]) {
