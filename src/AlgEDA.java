@@ -161,7 +161,7 @@ public class AlgEDA {
             }while(randomTournament.size() != Utils.config.getEdKBest());
             Iterator<Individual> it = randomTournament.iterator();
             Individual iteration = it.next();
-            objetive = it.next(); // para
+            objetive = iteration;
             while(it.hasNext()){
                 if (iteration.getFitness() < objetive.getFitness()) {
                     objetive = iteration;

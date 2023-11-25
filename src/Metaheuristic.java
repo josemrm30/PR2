@@ -12,6 +12,7 @@ public class Metaheuristic implements Runnable {
     private final int kBest;
     private int kWorst;
     private final int population;
+    private final int individualsEDB;
     private final int[][] cities;
     private final String alg;
 
@@ -26,6 +27,7 @@ public class Metaheuristic implements Runnable {
         this.kWorst = kWorst;
         this.population = population;
         this.cities = citiesList;
+        individualsEDB=0;
     }
 
     public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int kBest, int population, int[][] citiesList) throws IOException {
@@ -36,6 +38,18 @@ public class Metaheuristic implements Runnable {
         this.kBest = kBest;
         this.population = population;
         this.cities = citiesList;
+        individualsEDB=0;
+    }
+
+    public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int kBest, int population,int individualsEDB, int[][] citiesList) throws IOException {
+        this.alg = algorithm;
+        this.cdl = cdl;
+        this.data = dat;
+        this.seed = seed;
+        this.kBest = kBest;
+        this.population = population;
+        this.cities = citiesList;
+        this.individualsEDB = individualsEDB;
     }
 
     public void createLogger(Long seed, int elite, int kBest, int kWorst, int population) throws IOException {

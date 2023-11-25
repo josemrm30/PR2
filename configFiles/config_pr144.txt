@@ -16,3 +16,4 @@ GreedyRate=0.2
 EDPopulation=100
 EDKBest=2
 Threads=6
+IndividualsEDB=3

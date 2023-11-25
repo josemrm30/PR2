@@ -23,6 +23,7 @@ public class Configurator {
     private int edPopulation;
     private int edKBest;
     private int threads;
+    private int individualsEDB;
 
     public Configurator(String path) throws IOException {
         String line;
@@ -100,6 +101,9 @@ public class Configurator {
                 case "Threads":
                     threads = Integer.parseInt(splited[1]);
                     break;
+                case "IndividualsEDB":
+                    individualsEDB = Integer.parseInt(splited[1]);
+                    break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + splited[0]);
             }
@@ -176,5 +180,11 @@ public class Configurator {
 
     public int getThreads() {
         return threads;
+    }
+    public int getkWorst() {
+        return kWorst;
+    }
+    public int getIndividualsEDB() {
+        return individualsEDB;
     }
 }

@@ -142,7 +142,7 @@ public class AlgEDB {
             ArrayList<Individual> selected = new ArrayList<>();
             int countindividual = 0;
             Set<Individual> randomTournament = new HashSet<>();
-            while (countindividual < 3) {
+            while (countindividual < Utils.config.getIndividualsEDB()) {
 
                 Individual random;
                 do {
