@@ -156,17 +156,19 @@ public class AlgEDA {
                 random = population.get(rand.nextInt(population.size()));
                 if (!selectionList.contains(random)){
                     randomTournament.add(random);
+                    selectionList.add(random);
                 }
             }while(randomTournament.size() != Utils.config.getEdKBest());
             Iterator<Individual> it = randomTournament.iterator();
             Individual iteration = it.next();
+            objetive = it.next(); // para
             while(it.hasNext()){
                 if (iteration.getFitness() < objetive.getFitness()) {
                     objetive = iteration;
                 }
                 it.next();
             }
-//eso va a fallar porque objetive no está inicializado
+            //eso va a fallar porque objetive no está inicializado
             int cut1 = rand.nextInt(population.size() - 2);
             int cut2 = cut1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
@@ -195,19 +197,6 @@ public class AlgEDA {
                 }
             }
             //el resultado esta en rand1
-
-
-            Individual randtour1;
-            Individual randtour2;
-            int i= 0;
-
-            selectionList.add(rand1);
-            //randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
-
-
-            do {
-                randtour2 = population.get(rand.nextInt(population.size()));
-            }while(selectionList.add(randtour2));
 
             newPopulation.add(OX2Child(objetive, rand1));
         }

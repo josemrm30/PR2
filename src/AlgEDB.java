@@ -134,49 +134,41 @@ public class AlgEDB {
             log.log(Level.INFO, msg.toString());
 
         }
-        for (int i = 0; i < newPopulation.size(); i++) {
-            Individual parent = newPopulation.get(i);
+        for (int i = 0; i < population.size(); i++) {
+            Individual parent = population.get(i);
 
             Set<Individual> selectionList = new HashSet<>();
             selectionList.add(parent);
             ArrayList<Individual> selected = new ArrayList<>();
             int countindividual = 0;
+            Set<Individual> randomTournament = new HashSet<>();
             while (countindividual < 3) {
 
-                Individual randtour1;
-                Individual randtour2;
-                do{
-                    randtour1 = newPopulation.get(rand.nextInt(newPopulation.size()));
-                }while(!selectionList.add(randtour1));
-                do{
-                    randtour2 = newPopulation.get(rand.nextInt(newPopulation.size()));
-                }while(!selectionList.add(randtour2));
+                Individual random;
+                do {
+                    random = population.get(rand.nextInt(population.size()));
+                    if (!selectionList.contains(random)){
+                        randomTournament.add(random);
+                        selectionList.add(random);
+                    }
+                }while(randomTournament.size() != Utils.config.getEdKBest());
 
-                Individual best = randtour1;
+                Iterator <Individual> it = randomTournament.iterator();
 
-                Iterator <Individual> it = selectionList.iterator();
                 Individual iteration = it.next();
+                Individual best = iteration;
                 while(it.hasNext()){
                     if (iteration.getFitness() < best.getFitness()) {
                         best = iteration;
                     }
                     it.next();
                 }
-                int iguales = 0;
-                for (int j = 0; j < selected.size(); j++) {
-                    if (best == selected.get(i)) {
-                        iguales++;
-                        break;
-                    }
-                }
-                if (iguales == 0) {
-                    selected.add(best);
-                    countindividual++;
-                }
+                selected.add(best);
+                countindividual++;
             }
             Individual rand1 = new Individual(selected.get(0));
             Individual rand2 = new Individual(selected.get(1));
-            int corte1 = rand.nextInt(newPopulation.size() - 2);
+            int corte1 = rand.nextInt(population.size() - 2);
             int corte2 = corte1 + 1;
             for (int j = 0; j < rand1.getGens().length; j++) {
                 if (rand1.getGens()[j] == parent.getGens()[corte1]) {
@@ -209,4 +201,3 @@ public class AlgEDB {
         }
     }
 }
-
