@@ -13,7 +13,7 @@ public class ALGGenOX2 {
     private ArrayList<Individual> elites;
     private ArrayList<Individual> worsts;
     private ArrayList<Individual> newPopulation = new ArrayList<>();
-    private int[][] cities;
+    private final int[][] cities;
 
     public ALGGenOX2(long seed, int elite, int kBest, Logger log, int[][] citiesList) {
         rand = new Random(seed);

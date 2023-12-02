@@ -132,9 +132,7 @@ public class AlgEDB {
                 pos = i;
             }
         }
-        StringBuilder msg = new StringBuilder();
-        msg.append(" Fitness = ").append(population.get(pos).getFitness()).append(" Best ").append(pos).append(" ").append(Arrays.deepToString(population.get(pos).getGens())).append("\n");
-        log.log(Level.INFO, msg.toString());
+        log.log(Level.INFO, " Fitness = " + population.get(pos).getFitness() + " Best " + pos + " " + Arrays.deepToString(population.get(pos).getGens()) + "\n");
     }
 
     public void selectionRecombination() {
@@ -153,13 +151,13 @@ public class AlgEDB {
             Individual parent = population.get(i);
             Individual rand1;
             Individual rand2;
-            Individual objetive;
+            Individual objective;
             Individual newParent = new Individual(parent);
 
             ArrayList<Individual> selected = new ArrayList<>();
-            int countindividual = 0;
+            int countIndividual = 0;
 
-            while (countindividual < Utils.config.getIndividualsEDB()) {
+            while (countIndividual < Utils.config.getIndividualsEDB()) {
                 Set<Individual> selectionList = new HashSet<>();
                 selectionList.add(parent);
                 Set<Individual> randomTournament = new HashSet<>();
@@ -184,18 +182,18 @@ public class AlgEDB {
                     }
                 }
                 selected.add(best);
-                countindividual++;
+                countIndividual++;
             }
             rand1 = new Individual(selected.get(0));
             rand2 = new Individual(selected.get(1));
-            objetive = new Individual(selected.get(2));
+            objective = new Individual(selected.get(2));
 
             int cut1 = rand.nextInt(newParent.getGens().length - 1);
             int cut2 = cut1 + 1;
             Utils.swap(newParent.getGens(), cut1, cut2);
 
             for (int j = 0; j < rand1.getGens().length; j++) {
-                if (rand1.getGens()[j] == newParent.getGens()[cut1]) {
+                if (rand1.getGens()[j].equals(newParent.getGens()[cut1])) {
                     int parentMatch = newParent.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
@@ -205,7 +203,7 @@ public class AlgEDB {
                 }
             }
             for (int j = 0; j < rand2.getGens().length; j++) {
-                if (rand2.getGens()[j] == newParent.getGens()[cut2]) {
+                if (rand2.getGens()[j].equals(newParent.getGens()[cut2])) {
                     int parentMatch = rand2.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
@@ -216,7 +214,7 @@ public class AlgEDB {
             }
             //el resultado esta en rand1
 
-            newPopulation.add(OX2Child(rand1, objetive));
+            newPopulation.add(OX2Child(rand1, objective));
         }
         if (generation % 100 == 0) {
             checkBest();

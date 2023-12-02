@@ -132,9 +132,7 @@ public class AlgEDA {
                 pos = i;
             }
         }
-        StringBuilder msg = new StringBuilder();
-        msg.append(" Fitness = ").append(population.get(pos).getFitness()).append(" Best ").append(pos).append(" ").append(Arrays.deepToString(population.get(pos).getGens())).append("\n");
-        log.log(Level.INFO, msg.toString());
+        log.log(Level.INFO, " Fitness = " + population.get(pos).getFitness() + " Best " + pos + " " + Arrays.deepToString(population.get(pos).getGens()) + "\n");
     }
 
     public void selectionRecombination() {
@@ -154,7 +152,7 @@ public class AlgEDA {
             Individual parent = population.get(i);
             Individual rand1;
             Individual rand2;
-            Individual objetive;
+            Individual objective;
             Individual newParent = new Individual(parent);
             Set<Individual> selectionList = new HashSet<>();
             selectionList.add(parent);
@@ -178,11 +176,11 @@ public class AlgEDA {
 
             Iterator<Individual> it = randomTournament.iterator();
             Individual iteration = it.next();
-            objetive = iteration;
+            objective = iteration;
             while (it.hasNext()) {
                 iteration = it.next();
-                if (iteration.getFitness() < objetive.getFitness()) {
-                    objetive = iteration;
+                if (iteration.getFitness() < objective.getFitness()) {
+                    objective = iteration;
                 }
 
             }
@@ -191,7 +189,7 @@ public class AlgEDA {
             Utils.swap(newParent.getGens(), cut1, cut2);
 
             for (int j = 0; j < rand1.getGens().length; j++) {
-                if (rand1.getGens()[j] == newParent.getGens()[cut1]) {
+                if (rand1.getGens()[j].equals(newParent.getGens()[cut1])) {
                     int parentMatch = newParent.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
@@ -202,7 +200,7 @@ public class AlgEDA {
             }
 
             for (int j = 0; j < rand2.getGens().length; j++) {
-                if (rand2.getGens()[j] == newParent.getGens()[cut2]) {
+                if (rand2.getGens()[j].equals(newParent.getGens()[cut2])) {
                     int parentMatch = rand2.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
@@ -213,7 +211,7 @@ public class AlgEDA {
             }
             //el resultado esta en rand1
 
-            newPopulation.add(OX2Child(rand1, objetive));
+            newPopulation.add(OX2Child(rand1, objective));
         }
         if (generation % 100 == 0) {
             checkBest();

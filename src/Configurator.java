@@ -181,9 +181,7 @@ public class Configurator {
     public int getThreads() {
         return threads;
     }
-    public int getkWorst() {
-        return kWorst;
-    }
+
     public int getIndividualsEDB() {
         return individualsEDB;
     }
