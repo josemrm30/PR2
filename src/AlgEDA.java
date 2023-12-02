@@ -1,5 +1,3 @@
-import jdk.jshell.execution.Util;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,11 +116,25 @@ public class AlgEDA {
 
     public void replacement() {
         for (int i = 0; i < population.size(); i++) {
-            if(newPopulation.get(i).getFitness() < population.get(i).getFitness()){
-                population.set(i,newPopulation.get(i));
+            if (newPopulation.get(i).getFitness() < population.get(i).getFitness()) {
+                population.set(i, newPopulation.get(i));
             }
         }
         newPopulation = new ArrayList<>();
+    }
+
+    public void checkBest() {
+        double bestFitness = Double.MAX_VALUE;
+        int pos = 0;
+        for (int i = 0; i < population.size(); i++) {
+            if (population.get(i).getFitness() < bestFitness) {
+                bestFitness = population.get(i).getFitness();
+                pos = i;
+            }
+        }
+        StringBuilder msg = new StringBuilder();
+        msg.append(" Fitness = ").append(population.get(pos).getFitness()).append(" Best ").append(pos).append(" ").append(Arrays.deepToString(population.get(pos).getGens())).append("\n");
+        log.log(Level.INFO, msg.toString());
     }
 
     public void selectionRecombination() {
@@ -135,6 +147,7 @@ public class AlgEDA {
             }
             log.log(Level.INFO, "Generation " + generation);
             log.log(Level.INFO, msg.toString());
+
         }
 
         for (int i = 0; i < population.size(); i++) {
@@ -142,66 +155,70 @@ public class AlgEDA {
             Individual rand1;
             Individual rand2;
             Individual objetive;
+            Individual newParent = new Individual(parent);
             Set<Individual> selectionList = new HashSet<>();
             selectionList.add(parent);
 
-            do{
+            do {
                 rand1 = population.get(rand.nextInt(population.size()));
-            }while(!selectionList.add(rand1));
-            do{
+            } while (!selectionList.add(rand1));
+            do {
                 rand2 = population.get(rand.nextInt(population.size()));
-            }while(!selectionList.add(rand2));
+            } while (!selectionList.add(rand2));
 
             Set<Individual> randomTournament = new HashSet<>();
             Individual random;
             do {
                 random = population.get(rand.nextInt(population.size()));
-                if (!selectionList.contains(random)){
+                if (!selectionList.contains(random)) {
                     randomTournament.add(random);
                     selectionList.add(random);
                 }
-            }while(randomTournament.size() != Utils.config.getEdKBest());
+            } while (randomTournament.size() != numKBest);
+
             Iterator<Individual> it = randomTournament.iterator();
             Individual iteration = it.next();
             objetive = iteration;
-            while(it.hasNext()){
+            while (it.hasNext()) {
+                iteration = it.next();
                 if (iteration.getFitness() < objetive.getFitness()) {
                     objetive = iteration;
                 }
-                it.next();
+
             }
-            //eso va a fallar porque objetive no está inicializado
-            int cut1 = rand.nextInt(population.size() - 2);
+            int cut1 = rand.nextInt(newParent.getGens().length - 1);
             int cut2 = cut1 + 1;
+            Utils.swap(newParent.getGens(), cut1, cut2);
+
             for (int j = 0; j < rand1.getGens().length; j++) {
-                if (rand1.getGens()[j] == parent.getGens()[cut1]) {
-                    int datosecuencial = parent.getGens()[j];
-                    for (int k = 0; k < parent.getGens().length; k++) {
-                        if (datosecuencial == parent.getGens()[k]) {
-                            int aux = rand1.getGens()[j];
-                            rand1.getGens()[j] = rand1.getGens()[k];
-                            rand1.getGens()[k] = aux;
+                if (rand1.getGens()[j] == newParent.getGens()[cut1]) {
+                    int parentMatch = newParent.getGens()[j];
+                    for (int k = 0; k < rand1.getGens().length; k++) {
+                        if (parentMatch == rand1.getGens()[k]) {
+                            Utils.swap(rand1.getGens(), j, k);
                         }
                     }
                 }
             }
 
             for (int j = 0; j < rand2.getGens().length; j++) {
-                if (rand2.getGens()[j] == parent.getGens()[cut2]) {
-                    int datarand1 = rand1.getGens()[j];
+                if (rand2.getGens()[j] == newParent.getGens()[cut2]) {
+                    int parentMatch = rand2.getGens()[j];
                     for (int k = 0; k < rand1.getGens().length; k++) {
-                        if (datarand1 == rand1.getGens()[k]) {
-                            int aux = rand1.getGens()[j];
-                            rand1.getGens()[j] = rand1.getGens()[k];
-                            rand1.getGens()[k] = aux;
+                        if (parentMatch == rand1.getGens()[k]) {
+                            Utils.swap(rand1.getGens(), j, k);
                         }
                     }
                 }
             }
             //el resultado esta en rand1
 
-            newPopulation.add(OX2Child(objetive, rand1));
+            newPopulation.add(OX2Child(rand1, objetive));
         }
+        if (generation % 100 == 0) {
+            checkBest();
+        }
+
     }
 }
 

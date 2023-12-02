@@ -46,9 +46,8 @@ public class Utils {
     }
 
     public static void swap(Integer[] gens, int i, int j) {
-        Integer[] newSol = gens.clone();
-        int temp = newSol[i];
-        newSol[i] = newSol[j];
-        newSol[j] = temp;
+        int temp = gens[i];
+        gens[i] = gens[j];
+        gens[j] = temp;
     }
 }

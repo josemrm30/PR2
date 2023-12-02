@@ -12,7 +12,7 @@ public class Metaheuristic implements Runnable {
     private final int kBest;
     private int kWorst;
     private final int population;
-    private final int individualsEDB;
+
     private final int[][] cities;
     private final String alg;
 
@@ -27,7 +27,6 @@ public class Metaheuristic implements Runnable {
         this.kWorst = kWorst;
         this.population = population;
         this.cities = citiesList;
-        individualsEDB=0;
     }
 
     public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int kBest, int population, int[][] citiesList) throws IOException {
@@ -38,22 +37,10 @@ public class Metaheuristic implements Runnable {
         this.kBest = kBest;
         this.population = population;
         this.cities = citiesList;
-        individualsEDB=0;
-    }
-
-    public Metaheuristic(String algorithm, CountDownLatch cdl, LectorDatos dat, Long seed, int kBest, int population,int individualsEDB, int[][] citiesList) throws IOException {
-        this.alg = algorithm;
-        this.cdl = cdl;
-        this.data = dat;
-        this.seed = seed;
-        this.kBest = kBest;
-        this.population = population;
-        this.cities = citiesList;
-        this.individualsEDB = individualsEDB;
     }
 
     public void createLogger(Long seed, int elite, int kBest, int kWorst, int population) throws IOException {
-        String logFile = "log/" + Utils.config.getFile() + "_" + seed + "_P=" + population + "_E=" + elite + "_kBest=" + kBest + "_kWorst=" + kWorst + ".txt";
+        String logFile = "log/" + alg + "_" + Utils.config.getFile() + "_" + seed + "_P=" + population + "_E=" + elite + "_kBest=" + kBest + "_kWorst=" + kWorst + ".txt";
 
         log = Logger.getLogger(ALGGenOX2.class.getName() + " " + logFile);
         if (Utils.config.getConsoleLog()) {
@@ -81,8 +68,7 @@ public class Metaheuristic implements Runnable {
         long diff;
 
 
-
-        switch(alg) {
+        switch (alg) {
             case "GenOX2":
                 ALGGenOX2 genes = new ALGGenOX2(seed, elite, kBest, log, cities);
                 genes.initialization(population, data.getCiudades().length);
@@ -136,7 +122,6 @@ public class Metaheuristic implements Runnable {
                 log.log(Level.INFO, "Run time = " + diff + " milliseconds. ");
                 break;
         }
-
 
 
         cdl.countDown();
