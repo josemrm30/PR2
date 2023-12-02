@@ -15,10 +15,10 @@ public class ALGGenOX2 {
     private ArrayList<Individual> newPopulation = new ArrayList<>();
     private int[][] cities;
 
-    public ALGGenOX2(long seed, int elite, int kbest, Logger log, int[][] citiesList) {
+    public ALGGenOX2(long seed, int elite, int kBest, Logger log, int[][] citiesList) {
         rand = new Random(seed);
         numElites = elite;
-        numKBest = kbest;
+        numKBest = kBest;
         this.log = log;
         cities = citiesList;
     }

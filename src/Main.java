@@ -11,19 +11,39 @@ public class Main {
 
 
     public static void runFiles() throws IOException, InterruptedException {
-        int num = Utils.config.getSeeds().size() * Utils.config.getElite().size() * Utils.config.getKBest().size() * Utils.config.getPopulation().size();
+        int num = Utils.config.getSeeds().size() * Utils.config.getElite().size() * Utils.config.getKBest().size() * Utils.config.getPopulation().size() + (Utils.config.getSeeds().size()*2);
         CountDownLatch cdl = new CountDownLatch(num);
         int[][] cities = Utils.citiesByDistance(data.getCiudades().length);
-        for (int i = 0; i < Utils.config.getSeeds().size(); i++) {
-            for (int j = 0; j < Utils.config.getElite().size(); j++) {
-                for (int k = 0; k < Utils.config.getKBest().size(); k++) {
-                    for (int l = 0; l < Utils.config.getPopulation().size(); l++) {
-                        Metaheuristic meta = new Metaheuristic(cdl, data, Utils.config.getSeeds().get(i), Utils.config.getElite().get(j), Utils.config.getKBest().get(k), Utils.config.getKWorst(), Utils.config.getPopulation().get(l), cities);
+        for (int i = 0; i < Utils.config.getAlgorithms().size(); i++) {
+            switch (Utils.config.getAlgorithms().get(i)){
+                case "GenOX2":
+                    for (int j = 0; j < Utils.config.getSeeds().size(); j++) {
+                        for (int k = 0; k < Utils.config.getElite().size(); k++) {
+                            for (int l = 0; l < Utils.config.getKBest().size(); l++) {
+                                for (int m = 0; m < Utils.config.getPopulation().size(); m++) {
+                                    Metaheuristic meta = new Metaheuristic(Utils.config.getAlgorithms().get(i), cdl, data, Utils.config.getSeeds().get(j), Utils.config.getElite().get(k), Utils.config.getKBest().get(l), Utils.config.getKWorst(), Utils.config.getPopulation().get(m), cities);
+                                    executor.execute(meta);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case "EDA":
+                    for (int j = 0; j < Utils.config.getSeeds().size(); j++) {
+                        Metaheuristic meta = new Metaheuristic(Utils.config.getAlgorithms().get(i), cdl, data, Utils.config.getSeeds().get(j), Utils.config.getEdKBest(), Utils.config.getEdPopulation(), cities);
                         executor.execute(meta);
                     }
-                }
+                    break;
+                case "EDB":
+                    for (int j = 0; j < Utils.config.getSeeds().size(); j++) {
+                        Metaheuristic meta = new Metaheuristic(Utils.config.getAlgorithms().get(i), cdl, data, Utils.config.getSeeds().get(j), Utils.config.getEdKBest(), Utils.config.getEdPopulation(),Utils.config.getIndividualsEDB(), cities);
+                        executor.execute(meta);
+                    }
+                    break;
             }
+
         }
+
         cdl.await();
     }
 
