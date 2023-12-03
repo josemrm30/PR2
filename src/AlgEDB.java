@@ -132,7 +132,7 @@ public class AlgEDB {
                 pos = i;
             }
         }
-        log.log(Level.INFO, " Fitness = " + population.get(pos).getFitness() + " Best " + pos + " " + Arrays.deepToString(population.get(pos).getGens()) + "\n");
+        log.log(Level.INFO, "Generation " + generation + "Fitness = " + population.get(pos).getFitness() + " Best " + pos + " " + Arrays.deepToString(population.get(pos).getGens()) + "\n");
     }
 
     public void selectionRecombination() {
@@ -192,22 +192,27 @@ public class AlgEDB {
             int cut2 = cut1 + 1;
             Utils.swap(newParent.getGens(), cut1, cut2);
 
-            for (int j = 0; j < rand1.getGens().length; j++) {
+            boolean finded1 = false;
+            for (int j = 0; j < rand1.getGens().length && !finded1; j++) {
                 if (rand1.getGens()[j].equals(newParent.getGens()[cut1])) {
                     int parentMatch = newParent.getGens()[j];
-                    for (int k = 0; k < rand1.getGens().length; k++) {
+                    for (int k = 0; k < rand1.getGens().length && !finded1; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
                             Utils.swap(rand1.getGens(), j, k);
+                            finded1 = true;
                         }
                     }
                 }
             }
-            for (int j = 0; j < rand2.getGens().length; j++) {
+
+            boolean finded2 = false;
+            for (int j = 0; j < rand2.getGens().length && !finded2; j++) {
                 if (rand2.getGens()[j].equals(newParent.getGens()[cut2])) {
                     int parentMatch = rand2.getGens()[j];
-                    for (int k = 0; k < rand1.getGens().length; k++) {
+                    for (int k = 0; k < rand1.getGens().length && !finded2; k++) {
                         if (parentMatch == rand1.getGens()[k]) {
                             Utils.swap(rand1.getGens(), j, k);
+                            finded2 = true;
                         }
                     }
                 }
@@ -216,7 +221,7 @@ public class AlgEDB {
 
             newPopulation.add(OX2Child(rand1, objective));
         }
-        if (generation % 100 == 0) {
+        if (generation % 2 == 0) {
             checkBest();
         }
     }
